@@ -1,0 +1,2170 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
+<title>Carl Studio · 内容后台</title>
+<link href="https://fonts.googleapis.com/css2?family=Noto+Serif+SC:wght@400;600;700;900&family=DM+Mono:ital,wght@0,400;0,500;1,400&family=Noto+Sans+SC:wght@300;400;500;600&display=swap" rel="stylesheet">
+<style>
+:root {
+  --g:       #1A7A3C;
+  --g2:      #2C9E56;
+  --g3:      #7ED4A0;
+  --gd:      #0F4A24;
+  --gp:      #EDF7F1;
+  --gp2:     #D4EEE0;
+  --gold:    #C8973A;
+  --goldt:   #FFF3DC;
+  --ink:     #111111;
+  --ink2:    #444444;
+  --ink3:    #888888;
+  --ink4:    #BBBBBB;
+  --bg:      #F5F7F5;
+  --card:    #FFFFFF;
+  --border:  #E0E8E3;
+  --border2: #C8DDD0;
+  --r:       14px;
+  --r2:      10px;
+  --sh:      0 2px 16px rgba(26,122,60,.07);
+  --sh2:     0 4px 24px rgba(26,122,60,.13);
+  --red:     #E53935;
+  --redp:    #FFEBEE;
+  --blue:    #1565C0;
+  --bluep:   #E3F2FD;
+  --amber:   #E65100;
+  --amberp:  #FFF3E0;
+}
+
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0;}
+html{scroll-behavior:smooth;}
+body{
+  font-family:'Noto Sans SC',sans-serif;
+  background:var(--bg);
+  color:var(--ink);
+  min-height:100vh;
+  padding-bottom:90px;
+  font-size:14px;
+}
+
+/* ── NAV ── */
+nav{
+  position:fixed;bottom:0;left:0;right:0;
+  background:var(--card);
+  border-top:1px solid var(--border);
+  display:flex;
+  z-index:200;
+  box-shadow:0 -4px 20px rgba(0,0,0,.08);
+}
+.nav-item{
+  flex:1;display:flex;flex-direction:column;align-items:center;
+  padding:10px 0 12px;
+  cursor:pointer;
+  border:none;background:none;
+  color:var(--ink3);
+  font-family:'Noto Sans SC',sans-serif;
+  font-size:10px;gap:4px;
+  transition:color .15s;
+  -webkit-tap-highlight-color:transparent;
+}
+.nav-item.active{color:var(--g);}
+.nav-icon{font-size:22px;line-height:1;}
+
+/* ── PAGES ── */
+.page{display:none;padding:0 0 12px;}
+.page.active{display:block;}
+
+/* ── PAGE HEADER ── */
+.page-header{
+  background:var(--g);
+  padding:52px 20px 20px;
+  color:#fff;
+  position:sticky;top:0;z-index:100;
+  box-shadow:0 4px 20px rgba(26,122,60,.25);
+}
+.page-header h1{
+  font-family:'Noto Serif SC',serif;
+  font-size:20px;font-weight:900;
+  letter-spacing:.03em;
+}
+.page-header p{
+  font-size:11px;color:rgba(255,255,255,.6);
+  margin-top:3px;
+}
+
+/* ── SECTION ── */
+.section{padding:16px 16px 0;}
+.section-title{
+  font-size:11px;font-weight:600;
+  color:var(--ink3);letter-spacing:.1em;
+  text-transform:uppercase;
+  margin-bottom:10px;
+  display:flex;align-items:center;gap:6px;
+}
+.section-title::before{
+  content:'';width:3px;height:14px;
+  background:var(--g);border-radius:2px;
+}
+
+/* ── CARDS ── */
+.card{
+  background:var(--card);
+  border:1.5px solid var(--border);
+  border-radius:var(--r);
+  box-shadow:var(--sh);
+  overflow:hidden;
+}
+.card+.card{margin-top:10px;}
+
+/* ── PROGRESS BAR ── */
+.prog-wrap{margin-top:12px;}
+.prog-row{display:flex;justify-content:space-between;align-items:center;margin-bottom:6px;}
+.prog-label{font-size:12px;color:rgba(255,255,255,.8);}
+.prog-num{font-family:'DM Mono',monospace;font-size:12px;color:#7EEAAA;}
+.prog-bar{background:rgba(255,255,255,.2);border-radius:99px;height:5px;overflow:hidden;}
+.prog-fill{height:100%;background:#7EEAAA;border-radius:99px;transition:width .4s cubic-bezier(.4,0,.2,1);}
+
+/* ══════════════════════════════════════════════════════
+   PAGE 1: SHOTS CHECKLIST
+══════════════════════════════════════════════════════ */
+.today-banner{
+  margin:12px 16px 0;
+  background:linear-gradient(135deg,var(--g),var(--g2));
+  border-radius:var(--r);padding:12px 14px;
+  color:#fff;display:flex;align-items:center;justify-content:space-between;
+  box-shadow:var(--sh2);
+}
+.today-banner-left{flex:1;}
+.today-banner-title{font-family:'Noto Serif SC',serif;font-size:15px;font-weight:700;}
+.today-banner-sub{font-size:11px;color:rgba(255,255,255,.75);margin-top:2px;}
+.today-banner-count{
+  font-family:'DM Mono',monospace;font-size:22px;font-weight:700;
+  background:rgba(255,255,255,.2);border-radius:8px;
+  padding:6px 12px;text-align:center;
+}
+.today-banner-count small{display:block;font-size:9px;font-weight:400;opacity:.8;}
+
+.filter-scroll{
+  display:flex;gap:7px;padding:12px 16px;
+  overflow-x:auto;scrollbar-width:none;
+  background:var(--card);
+  border-bottom:1px solid var(--border);
+  position:sticky;top:110px;z-index:90;
+  box-shadow:var(--sh);
+}
+.filter-scroll::-webkit-scrollbar{display:none;}
+.chip{
+  flex-shrink:0;padding:5px 12px;border-radius:99px;
+  border:1.5px solid var(--border);background:var(--card);
+  color:var(--ink2);font-size:11px;
+  font-family:'Noto Sans SC',sans-serif;
+  cursor:pointer;white-space:nowrap;
+  transition:all .15s;
+  -webkit-tap-highlight-color:transparent;
+}
+.chip.active{background:var(--g);border-color:var(--g);color:#fff;font-weight:500;}
+
+.loc-group{margin:12px 16px 0;}
+.loc-head{
+  display:flex;align-items:center;gap:10px;
+  padding:12px 14px;
+  background:var(--card);border:1.5px solid var(--border);
+  border-radius:var(--r);
+  cursor:pointer;user-select:none;
+  transition:all .15s;
+  box-shadow:var(--sh);
+}
+.loc-head.open{border-color:var(--g);background:var(--gp);}
+.loc-icon2{
+  width:34px;height:34px;border-radius:8px;
+  background:var(--g);
+  display:flex;align-items:center;justify-content:center;
+  font-size:15px;flex-shrink:0;
+}
+.loc-info{flex:1;min-width:0;}
+.loc-name{font-family:'Noto Serif SC',serif;font-size:15px;font-weight:700;}
+.loc-sub{font-size:10px;color:var(--ink3);margin-top:1px;}
+.loc-badge{
+  font-family:'DM Mono',monospace;font-size:10px;
+  background:var(--gp);color:var(--g);
+  padding:3px 8px;border-radius:99px;
+  border:1px solid rgba(26,122,60,.2);
+  white-space:nowrap;flex-shrink:0;
+}
+.loc-arr{font-size:11px;color:var(--ink4);transition:transform .2s;flex-shrink:0;}
+.loc-head.open .loc-arr{transform:rotate(90deg);}
+
+.shots-list{display:none;flex-direction:column;gap:8px;padding:8px 0;}
+.shots-list.open{display:flex;}
+
+.shot-card{
+  background:var(--card);border:1.5px solid var(--border);
+  border-radius:var(--r2);overflow:hidden;
+  transition:border-color .15s;box-shadow:var(--sh);
+}
+.shot-card.done{border-color:var(--g2);background:var(--gp);}
+.shot-head{
+  display:flex;align-items:flex-start;gap:10px;
+  padding:12px;cursor:pointer;
+}
+.cb{
+  width:20px;height:20px;border-radius:5px;
+  border:2px solid var(--border2);
+  display:flex;align-items:center;justify-content:center;
+  flex-shrink:0;margin-top:2px;
+  transition:all .15s;background:var(--card);
+  cursor:pointer;
+}
+.shot-card.done .cb{background:var(--g);border-color:var(--g);}
+.cb svg{opacity:0;transition:opacity .15s;}
+.shot-card.done .cb svg{opacity:1;}
+.shot-body{flex:1;min-width:0;}
+.tags-row{display:flex;gap:5px;flex-wrap:wrap;margin-bottom:5px;}
+.stag{
+  font-size:9px;padding:2px 7px;border-radius:99px;
+  font-weight:500;white-space:nowrap;
+}
+.t-early{background:#E8F4FD;color:#1A5C8A;}
+.t-noon {background:#FFF3E0;color:#9A4400;}
+.t-aft  {background:#EDE7F6;color:#4A2A7A;}
+.t-eve  {background:#FCE4EC;color:#8A1A3A;}
+.t-any  {background:#F3F3F3;color:#555;}
+.t-launch{background:#FFF8E1;color:#8A5C00;border:1px solid #F0C840;}
+.shot-scene{font-size:13px;font-weight:500;line-height:1.4;}
+.shot-card.done .shot-scene{color:var(--g);text-decoration:line-through;text-decoration-color:var(--g3);}
+.dev-row{display:flex;gap:5px;margin-top:5px;flex-wrap:wrap;}
+.dtag{font-family:'DM Mono',monospace;font-size:9px;padding:2px 7px;border-radius:4px;}
+.d-dev{background:#EEF2FF;color:#3A4A9A;}
+.d-ori{background:#FFF0F8;color:#8A2A6A;}
+.expand-toggle{
+  font-size:10px;color:var(--g);background:none;border:none;
+  cursor:pointer;margin-top:7px;font-family:'Noto Sans SC',sans-serif;
+  display:flex;align-items:center;gap:3px;padding:0;
+}
+.ea{display:inline-block;transition:transform .2s;}
+.expand-toggle.open .ea{transform:rotate(90deg);}
+
+.shot-detail{display:none;border-top:1px solid var(--border);}
+.shot-detail.open{display:block;}
+.det-sec{padding:12px 14px;border-bottom:1px solid var(--border);}
+.det-sec:last-child{border-bottom:none;}
+.det-label{
+  font-size:9px;font-weight:600;color:var(--ink3);
+  letter-spacing:.1em;text-transform:uppercase;
+  margin-bottom:7px;display:flex;align-items:center;gap:5px;
+}
+.det-label::before{content:'';width:2px;height:10px;background:var(--g);border-radius:1px;}
+.det-txt{font-size:12px;line-height:1.75;color:var(--ink2);white-space:pre-wrap;}
+.audio-box{
+  background:var(--gp);border:1px solid rgba(26,122,60,.18);
+  border-radius:8px;padding:10px 12px;
+  font-size:12px;line-height:1.75;
+  font-family:'Noto Serif SC',serif;
+  white-space:pre-wrap;color:var(--gd);
+}
+.tip-box{
+  background:#FFFBEA;border:1px solid #F0D060;
+  border-radius:8px;padding:8px 11px;
+  font-size:11px;color:#7A5500;line-height:1.6;
+  margin-top:7px;white-space:pre-wrap;
+}
+
+/* ══════════════════════════════════════════════════════
+   PAGE 2: SCRIPTS LIBRARY + IMPORT
+══════════════════════════════════════════════════════ */
+
+/* Import module */
+.import-wrap{
+  margin:14px 16px 0;
+  background:var(--card);border:1.5px solid var(--border);
+  border-radius:var(--r);box-shadow:var(--sh);overflow:hidden;
+}
+.import-header{
+  padding:12px 14px;background:var(--gp);
+  border-bottom:1px solid var(--border);
+  display:flex;flex-direction:column;gap:3px;
+}
+.import-title{font-size:13px;font-weight:600;color:var(--g);}
+.import-hint{font-size:10px;color:var(--ink3);}
+.import-body{padding:12px 14px;}
+.import-file-area{
+  border:2px dashed var(--border2);border-radius:10px;
+  padding:20px;text-align:center;cursor:pointer;
+  transition:all .15s;background:var(--bg);
+}
+.import-file-area:active{border-color:var(--g);background:var(--gp);}
+.import-file-icon{font-size:28px;margin-bottom:6px;}
+.import-file-text{font-size:12px;color:var(--ink3);}
+.import-preview{padding:0 14px 14px;}
+.import-preview:empty{display:none;}
+
+.preview-card{
+  background:var(--gp);border:1.5px solid var(--g);
+  border-radius:10px;padding:12px 14px;
+}
+.preview-title{font-size:14px;font-weight:600;color:var(--g);margin-bottom:4px;}
+.preview-meta{font-size:11px;color:var(--ink3);margin-bottom:10px;}
+.preview-shots-count{
+  font-size:11px;color:var(--ink2);
+  background:var(--card);border-radius:6px;
+  padding:6px 10px;margin-bottom:10px;
+}
+.preview-actions{display:flex;gap:8px;}
+.btn-import-confirm{
+  flex:2;padding:10px;background:var(--g);color:#fff;
+  border:none;border-radius:8px;
+  font-family:'Noto Sans SC',sans-serif;
+  font-size:13px;font-weight:600;cursor:pointer;
+}
+.btn-import-cancel{
+  flex:1;padding:10px;background:none;color:var(--ink2);
+  border:1.5px solid var(--border);border-radius:8px;
+  font-family:'Noto Sans SC',sans-serif;
+  font-size:13px;cursor:pointer;
+}
+
+/* Scripts library */
+.scripts-library{margin:12px 16px 0;}
+
+.script-video-card{
+  background:var(--card);border:1.5px solid var(--border);
+  border-radius:var(--r);box-shadow:var(--sh);
+  overflow:hidden;margin-bottom:10px;
+}
+.svc-header{
+  padding:14px;cursor:pointer;
+  display:flex;align-items:flex-start;gap:10px;
+  transition:background .15s;
+  -webkit-tap-highlight-color:transparent;
+}
+.svc-header:active{background:var(--gp);}
+.svc-header.open{background:var(--gp);border-bottom:1px solid var(--border);}
+.svc-num{
+  font-family:'DM Mono',monospace;font-size:10px;
+  background:var(--g);color:#fff;
+  padding:2px 7px;border-radius:4px;
+  flex-shrink:0;margin-top:2px;
+}
+.svc-info{flex:1;min-width:0;}
+.svc-title{
+  font-family:'Noto Serif SC',serif;
+  font-size:14px;font-weight:700;
+  line-height:1.4;color:var(--ink);
+}
+.svc-meta{display:flex;gap:6px;margin-top:6px;flex-wrap:wrap;}
+.svc-tag{
+  font-size:9px;padding:2px 7px;border-radius:99px;
+  background:var(--gp);color:var(--g);
+  border:1px solid rgba(26,122,60,.2);
+}
+.svc-tag.gold{background:var(--goldt);color:var(--gold);border-color:rgba(200,151,58,.3);}
+.svc-arr{font-size:11px;color:var(--ink4);transition:transform .2s;flex-shrink:0;margin-top:4px;}
+.svc-header.open .svc-arr{transform:rotate(90deg);}
+
+.svc-del{
+  font-size:16px;color:var(--ink4);background:none;border:none;
+  cursor:pointer;padding:2px;flex-shrink:0;
+  line-height:1;
+}
+
+.svc-body{display:none;padding:0 0 4px;}
+.svc-body.open{display:block;}
+
+/* Positioning banner */
+.svc-positioning{
+  margin:12px 14px 0;
+  background:var(--goldt);border:1px solid rgba(200,151,58,.3);
+  border-radius:8px;padding:9px 12px;
+  font-size:11px;color:#7A5000;line-height:1.6;
+}
+
+/* XHS copy */
+.svc-xhs{
+  margin:10px 14px 0;
+  background:var(--gp);border:1px solid rgba(26,122,60,.18);
+  border-radius:8px;padding:11px 13px;
+}
+.svc-xhs-label{
+  font-size:9px;font-weight:700;color:var(--g);
+  letter-spacing:.12em;text-transform:uppercase;
+  margin-bottom:6px;
+}
+.svc-xhs-text{
+  font-size:12px;line-height:1.75;
+  font-family:'Noto Serif SC',serif;
+  color:var(--gd);white-space:pre-wrap;
+}
+
+/* Edit tip */
+.svc-edittip{
+  margin:10px 14px 0;
+  background:#FFFBEA;border:1px solid #F0D060;
+  border-radius:8px;padding:9px 12px;
+  font-size:11px;color:#7A5500;line-height:1.6;
+}
+.svc-edittip-label{
+  font-size:9px;font-weight:700;color:#9A7000;
+  letter-spacing:.1em;text-transform:uppercase;
+  margin-bottom:5px;
+}
+
+/* Shot items inside script */
+.svc-shots{margin:10px 14px 14px;}
+.svc-shots-label{
+  font-size:9px;font-weight:700;color:var(--ink3);
+  letter-spacing:.1em;text-transform:uppercase;
+  margin-bottom:8px;display:flex;align-items:center;gap:5px;
+}
+.svc-shots-label::before{content:'';width:2px;height:10px;background:var(--g);border-radius:1px;}
+
+.svc-shot{
+  border:1.5px solid var(--border);border-radius:10px;
+  overflow:hidden;margin-bottom:8px;
+  background:var(--card);
+}
+.svc-shot:last-child{margin-bottom:0;}
+.svc-shot-head{
+  padding:10px 12px;display:flex;
+  align-items:flex-start;gap:8px;
+  cursor:pointer;background:var(--bg);
+  -webkit-tap-highlight-color:transparent;
+}
+.svc-shot-head:active{background:var(--gp2);}
+.svc-shot-head.open{background:var(--gp);border-bottom:1px solid var(--border);}
+.sshot-num{
+  font-family:'DM Mono',monospace;font-size:9px;
+  background:var(--ink2);color:#fff;
+  padding:1px 6px;border-radius:3px;flex-shrink:0;margin-top:2px;
+}
+.svc-shot-head.open .sshot-num{background:var(--g);}
+.sshot-info{flex:1;min-width:0;}
+.sshot-scene{font-size:12px;font-weight:500;line-height:1.4;color:var(--ink);}
+.sshot-tags{display:flex;gap:5px;margin-top:4px;flex-wrap:wrap;}
+.sshot-loc{
+  font-size:9px;padding:1px 6px;border-radius:4px;
+  background:#EEF2FF;color:#3A4A9A;
+  font-family:'DM Mono',monospace;
+}
+.sshot-time{
+  font-size:9px;padding:1px 6px;border-radius:99px;
+  font-weight:500;
+}
+.sshot-arr{font-size:10px;color:var(--ink4);transition:transform .2s;flex-shrink:0;margin-top:3px;}
+.svc-shot-head.open .sshot-arr{transform:rotate(90deg);}
+
+.svc-shot-detail{display:none;padding:10px 12px;}
+.svc-shot-detail.open{display:block;}
+.ssd-sec{margin-bottom:10px;}
+.ssd-sec:last-child{margin-bottom:0;}
+.ssd-label{
+  font-size:9px;font-weight:600;color:var(--ink3);
+  letter-spacing:.1em;text-transform:uppercase;
+  margin-bottom:5px;display:flex;align-items:center;gap:4px;
+}
+.ssd-label::before{content:'';width:2px;height:9px;background:var(--g);border-radius:1px;}
+.ssd-txt{font-size:12px;line-height:1.75;color:var(--ink2);white-space:pre-wrap;}
+.ssd-audio{
+  background:var(--gp);border:1px solid rgba(26,122,60,.18);
+  border-radius:7px;padding:9px 11px;
+  font-size:12px;line-height:1.75;
+  font-family:'Noto Serif SC',serif;
+  white-space:pre-wrap;color:var(--gd);
+}
+.ssd-tip{
+  background:#FFFBEA;border:1px solid #F0D060;
+  border-radius:7px;padding:7px 10px;
+  font-size:11px;color:#7A5500;line-height:1.6;
+  margin-top:6px;white-space:pre-wrap;
+}
+
+/* ══════════════════════════════════════════════════════
+   PAGE 3: CALENDAR
+══════════════════════════════════════════════════════ */
+.cal-wrap{margin:14px 16px 0;}
+.cal-nav{display:flex;align-items:center;justify-content:space-between;margin-bottom:12px;}
+.cal-month{font-family:'Noto Serif SC',serif;font-size:17px;font-weight:700;}
+.cal-btn{
+  background:none;border:1.5px solid var(--border);border-radius:8px;
+  padding:6px 10px;font-size:13px;cursor:pointer;color:var(--ink2);
+  transition:all .15s;
+}
+.cal-btn:active{background:var(--gp);border-color:var(--g);}
+.cal-grid{display:grid;grid-template-columns:repeat(7,1fr);gap:3px;}
+.cal-dow{
+  text-align:center;font-size:10px;font-weight:600;
+  color:var(--ink3);padding:6px 0;letter-spacing:.05em;
+}
+.cal-day{
+  aspect-ratio:1;display:flex;flex-direction:column;
+  align-items:center;justify-content:center;
+  border-radius:8px;cursor:pointer;
+  font-size:13px;position:relative;
+  transition:all .15s;user-select:none;
+  -webkit-tap-highlight-color:transparent;
+}
+.cal-day:empty{cursor:default;}
+.cal-day.today{background:var(--gp);color:var(--g);font-weight:700;}
+.cal-day.has-post{font-weight:600;}
+.cal-day .dot{
+  width:5px;height:5px;border-radius:99px;
+  background:var(--g);position:absolute;bottom:4px;
+}
+.cal-day.selected{background:var(--g);color:#fff;}
+.cal-day.selected .dot{background:#fff;}
+.cal-day:not(:empty):hover{background:var(--gp);}
+
+.cal-detail{
+  margin-top:12px;background:var(--card);
+  border:1.5px solid var(--border);border-radius:var(--r);
+  box-shadow:var(--sh);overflow:hidden;
+}
+.cal-detail-header{
+  padding:12px 14px;background:var(--gp);
+  border-bottom:1px solid var(--border);
+  display:flex;align-items:center;justify-content:space-between;
+}
+.cal-detail-header h3{
+  font-family:'Noto Serif SC',serif;font-size:15px;font-weight:700;
+}
+.btn-add-post{
+  background:var(--g);color:#fff;border:none;
+  border-radius:99px;padding:6px 14px;
+  font-size:11px;font-family:'Noto Sans SC',sans-serif;
+  cursor:pointer;
+}
+.post-list{padding:4px 0;}
+.post-item{
+  padding:12px 14px;border-bottom:1px solid var(--border);
+  display:flex;align-items:flex-start;gap:10px;cursor:pointer;
+}
+.post-item:last-child{border-bottom:none;}
+.post-status{
+  width:8px;height:8px;border-radius:99px;flex-shrink:0;margin-top:5px;
+}
+.st-draft{background:var(--ink4);}
+.st-ready{background:var(--gold);}
+.st-published{background:var(--g);}
+.post-info{flex:1;}
+.post-title{font-size:13px;font-weight:500;line-height:1.4;}
+.post-tags{display:flex;gap:5px;margin-top:4px;flex-wrap:wrap;}
+.post-tag{
+  font-size:9px;padding:1px 6px;border-radius:99px;
+  background:var(--gp);color:var(--g);
+}
+.post-tag.douyin{background:#FFE8E8;color:#CC0000;}
+.post-tag.xiaohongshu{background:#FFE8F0;color:#CC0055;}
+.post-del{
+  font-size:16px;color:var(--ink4);background:none;border:none;
+  cursor:pointer;padding:0;line-height:1;flex-shrink:0;
+}
+.empty-cal{
+  padding:30px;text-align:center;
+  color:var(--ink3);font-size:13px;
+}
+
+/* post modal */
+.modal-overlay{
+  position:fixed;inset:0;background:rgba(0,0,0,.45);
+  z-index:300;display:none;align-items:flex-end;
+}
+.modal-overlay.open{display:flex;}
+.modal{
+  background:var(--card);border-radius:var(--r) var(--r) 0 0;
+  width:100%;max-height:85vh;overflow-y:auto;
+  padding:20px 20px 40px;
+}
+.modal h2{
+  font-family:'Noto Serif SC',serif;font-size:18px;
+  font-weight:700;margin-bottom:16px;
+}
+.form-group{margin-bottom:14px;}
+.form-group label{
+  font-size:11px;font-weight:600;color:var(--ink3);
+  letter-spacing:.08em;display:block;margin-bottom:6px;
+}
+.form-group input,.form-group select,.form-group textarea{
+  width:100%;border:1.5px solid var(--border);border-radius:8px;
+  padding:10px 12px;font-family:'Noto Sans SC',sans-serif;
+  font-size:14px;color:var(--ink);background:var(--card);
+  outline:none;transition:border-color .15s;
+}
+.form-group input:focus,.form-group select:focus,.form-group textarea:focus{
+  border-color:var(--g);
+}
+.form-group textarea{min-height:70px;resize:none;}
+.platform-btns{display:flex;gap:8px;}
+.plt-btn{
+  flex:1;padding:9px;border:1.5px solid var(--border);
+  border-radius:8px;font-size:12px;
+  font-family:'Noto Sans SC',sans-serif;
+  cursor:pointer;background:var(--card);color:var(--ink2);
+  transition:all .15s;text-align:center;
+}
+.plt-btn.active.douyin{background:#FFE8E8;border-color:#CC0000;color:#CC0000;}
+.plt-btn.active.xhs{background:#FFE8F0;border-color:#CC0055;color:#CC0055;}
+.modal-actions{display:flex;gap:8px;margin-top:16px;}
+.btn-cancel{
+  flex:1;padding:12px;border:1.5px solid var(--border);
+  border-radius:var(--r2);background:none;font-size:13px;
+  font-family:'Noto Sans SC',sans-serif;cursor:pointer;color:var(--ink2);
+}
+.btn-confirm{
+  flex:2;padding:12px;background:var(--g);color:#fff;
+  border:none;border-radius:var(--r2);font-size:13px;
+  font-family:'Noto Sans SC',sans-serif;font-weight:600;cursor:pointer;
+}
+
+/* ══════════════════════════════════════════════════════
+   PAGE 4: NOTES (灵感速记)
+══════════════════════════════════════════════════════ */
+.note-input-wrap{
+  margin:14px 16px 0;
+  background:var(--card);border:1.5px solid var(--border);
+  border-radius:var(--r);box-shadow:var(--sh);overflow:hidden;
+}
+.note-input-top{padding:12px 14px 0;}
+textarea#noteInput{
+  width:100%;border:none;outline:none;resize:none;
+  font-family:'Noto Sans SC',sans-serif;font-size:14px;
+  line-height:1.6;color:var(--ink);background:transparent;
+  min-height:90px;
+}
+textarea#noteInput::placeholder{color:var(--ink4);}
+.note-input-bottom{
+  display:flex;align-items:center;justify-content:space-between;
+  padding:8px 14px;border-top:1px solid var(--border);background:var(--gp);
+}
+.note-type-btns{display:flex;gap:5px;}
+.ntbtn{
+  font-size:10px;padding:3px 9px;border-radius:99px;
+  border:1.5px solid var(--border);background:var(--card);
+  color:var(--ink2);cursor:pointer;
+  font-family:'Noto Sans SC',sans-serif;
+  transition:all .15s;
+}
+.ntbtn.active{background:var(--g);border-color:var(--g);color:#fff;}
+.btn-note{
+  background:var(--g);color:#fff;border:none;
+  border-radius:99px;padding:7px 16px;
+  font-family:'Noto Sans SC',sans-serif;
+  font-size:12px;font-weight:500;cursor:pointer;
+}
+
+.notes-list{margin:12px 16px 0;}
+.note-card{
+  background:var(--card);border:1.5px solid var(--border);
+  border-radius:var(--r2);padding:12px 14px;
+  box-shadow:var(--sh);margin-bottom:8px;
+  position:relative;
+}
+.note-type-badge{
+  font-size:9px;padding:2px 7px;border-radius:99px;
+  font-weight:600;margin-bottom:7px;display:inline-block;
+}
+.nb-idea{background:#E8F5FF;color:#0A5A9A;}
+.nb-obs{background:#F3E8FF;color:#5A0A9A;}
+.nb-feel{background:#FFE8E8;color:#9A0A0A;}
+.nb-other{background:var(--gp);color:var(--g);}
+.note-text{font-size:13px;line-height:1.7;color:var(--ink);white-space:pre-wrap;}
+.note-date{
+  font-family:'DM Mono',monospace;font-size:9px;
+  color:var(--ink4);margin-top:7px;
+}
+.note-del{
+  position:absolute;top:10px;right:12px;
+  font-size:15px;color:var(--ink4);background:none;border:none;
+  cursor:pointer;padding:0;
+}
+
+/* ── SCRIPT STATUS TAG ── */
+.script-status-row{display:flex;gap:6px;align-items:center;margin-top:6px;flex-wrap:wrap;}
+.script-status-btn{
+  font-size:9px;padding:3px 9px;border-radius:99px;
+  border:1.5px solid var(--border);background:var(--card);
+  color:var(--ink3);cursor:pointer;
+  font-family:'Noto Sans SC',sans-serif;
+  transition:all .15s;white-space:nowrap;
+}
+.script-status-btn.active-pending{background:#F3F3F3;border-color:#999;color:#444;}
+.script-status-btn.active-shooting{background:#E3F2FD;border-color:var(--blue);color:var(--blue);}
+.script-status-btn.active-editing{background:var(--amberp);border-color:var(--amber);color:var(--amber);}
+.script-status-btn.active-published{background:var(--gp);border-color:var(--g);color:var(--g);}
+
+/* ── NOTE SEND TO CLAUDE ── */
+.note-send-btn{
+  font-size:10px;padding:3px 10px;border-radius:99px;
+  background:var(--gp);border:1.5px solid rgba(26,122,60,.3);
+  color:var(--g);cursor:pointer;margin-top:7px;
+  font-family:'Noto Sans SC',sans-serif;
+  display:inline-flex;align-items:center;gap:4px;
+  transition:all .15s;
+}
+.note-send-btn:active{background:var(--g);color:#fff;}
+
+/* ── NOTE SEARCH ── */
+.note-search-wrap{
+  margin:12px 16px 0;
+  position:relative;
+}
+.note-search-wrap input{
+  width:100%;border:1.5px solid var(--border);border-radius:99px;
+  padding:8px 14px 8px 36px;
+  font-family:'Noto Sans SC',sans-serif;font-size:13px;
+  color:var(--ink);background:var(--card);outline:none;
+  transition:border-color .15s;
+}
+.note-search-wrap input:focus{border-color:var(--g);}
+.note-search-icon{
+  position:absolute;left:13px;top:50%;transform:translateY(-50%);
+  font-size:14px;pointer-events:none;
+}
+
+/* ── COPY MODAL ── */
+.copy-modal-overlay{
+  position:fixed;inset:0;background:rgba(0,0,0,.45);
+  z-index:300;display:none;align-items:flex-end;
+}
+.copy-modal-overlay.open{display:flex;}
+.copy-modal{
+  background:var(--card);border-radius:var(--r) var(--r) 0 0;
+  width:100%;max-height:80vh;overflow-y:auto;
+  padding:20px 20px 40px;
+}
+.copy-modal h2{font-family:'Noto Serif SC',serif;font-size:17px;font-weight:700;margin-bottom:10px;}
+.copy-modal-hint{font-size:11px;color:var(--ink3);margin-bottom:12px;line-height:1.6;}
+.copy-modal-text{
+  background:var(--gp);border:1.5px solid rgba(26,122,60,.2);
+  border-radius:10px;padding:12px 14px;
+  font-size:12px;line-height:1.75;color:var(--gd);
+  white-space:pre-wrap;font-family:'Noto Serif SC',serif;
+  margin-bottom:14px;
+}
+.copy-modal-actions{display:flex;gap:8px;}
+
+/* ── EMPTY STATE ── */
+.empty{
+  text-align:center;padding:40px 20px;
+  color:var(--ink3);font-size:13px;
+}
+.empty-icon{font-size:36px;margin-bottom:10px;}
+
+/* ── TOAST ── */
+.toast{
+  position:fixed;bottom:80px;left:50%;transform:translateX(-50%);
+  background:var(--gd);color:#fff;padding:9px 18px;
+  border-radius:99px;font-size:12px;z-index:400;
+  opacity:0;transition:opacity .2s;pointer-events:none;
+  white-space:nowrap;
+}
+.toast.show{opacity:1;}
+</style>
+</head>
+<body>
+
+<!-- TOAST -->
+<div class="toast" id="toast"></div>
+
+<!-- POST MODAL -->
+<div class="modal-overlay" id="modalOverlay">
+  <div class="modal">
+    <h2>添加发布计划</h2>
+    <div class="form-group">
+      <label>从脚本库选择（可选）</label>
+      <select id="postScriptPick" onchange="onScriptPick(this)">
+        <option value="">— 手动输入标题 —</option>
+      </select>
+    </div>
+    <div class="form-group">
+      <label>标题 / 选题</label>
+      <input type="text" id="postTitle" placeholder="这条视频叫什么">
+    </div>
+    <div class="form-group">
+      <label>状态</label>
+      <select id="postStatus">
+        <option value="draft">草稿</option>
+        <option value="ready">待发布</option>
+        <option value="published">已发布</option>
+      </select>
+    </div>
+    <div class="form-group">
+      <label>发布平台</label>
+      <div class="platform-btns">
+        <div class="plt-btn douyin" data-plt="douyin" onclick="togglePlatform(this)">抖音</div>
+        <div class="plt-btn xhs" data-plt="xhs" onclick="togglePlatform(this)">小红书</div>
+      </div>
+    </div>
+    <div class="form-group">
+      <label>备注</label>
+      <textarea id="postNote" placeholder="素材准备情况、待拍镜头等..."></textarea>
+    </div>
+    <div class="modal-actions">
+      <button class="btn-cancel" onclick="closeModal()">取消</button>
+      <button class="btn-confirm" onclick="savePost()">保存</button>
+    </div>
+  </div>
+</div>
+
+<!-- ══ PAGE 1: SHOTS ══ -->
+<div class="page active" id="page-shots">
+  <div class="page-header">
+    <h1>拍摄清单</h1>
+    <p>按地点分组 · 勾选已完成镜头</p>
+    <div class="prog-wrap">
+      <div class="prog-row">
+        <span class="prog-label">拍摄进度</span>
+        <span class="prog-num" id="progNum">0 / 0</span>
+      </div>
+      <div class="prog-bar"><div class="prog-fill" id="progFill"></div></div>
+    </div>
+  </div>
+  <div id="todayBanner"></div>
+  <div class="filter-scroll" id="filterBar"></div>
+  <div id="shotsContent"></div>
+</div>
+
+<!-- ══ PAGE 2: SCRIPTS LIBRARY ══ -->
+<div class="page" id="page-ideas">
+  <div class="page-header">
+    <h1>内容方向库</h1>
+    <p>每条视频的完整脚本 · 点击展开查看</p>
+  </div>
+
+  <!-- 导入脚本模块 -->
+  <div class="import-wrap">
+    <div class="import-header">
+      <span class="import-title">📥 导入新脚本</span>
+      <span class="import-hint">上传 Claude 生成的 JSON 文件，自动分配镜头到拍摄清单</span>
+    </div>
+    <div class="import-body">
+      <div class="import-file-area" id="importFileArea" onclick="document.getElementById('importFileInput').click()">
+        <div class="import-file-icon">📄</div>
+        <div class="import-file-text" id="importFileName">点击上传 JSON 脚本文件</div>
+        <input type="file" id="importFileInput" accept=".json" style="display:none" onchange="handleImportFile(this)">
+      </div>
+    </div>
+    <div class="import-preview" id="importPreview"></div>
+  </div>
+
+  <!-- 脚本库列表 -->
+  <div class="scripts-library">
+    <div id="scriptsList"></div>
+  </div>
+</div>
+
+<!-- ══ PAGE 3: CALENDAR ══ -->
+<div class="page" id="page-cal">
+  <div class="page-header">
+    <h1>内容日历</h1>
+    <p>规划发布节奏 · 管理选题状态</p>
+  </div>
+  <div class="cal-wrap">
+    <div class="cal-nav">
+      <button class="cal-btn" onclick="changeMonth(-1)">‹</button>
+      <div class="cal-month" id="calMonth"></div>
+      <button class="cal-btn" onclick="changeMonth(1)">›</button>
+    </div>
+    <div class="cal-grid" id="calGrid"></div>
+    <div class="cal-detail" id="calDetail">
+      <div class="cal-detail-header">
+        <h3 id="calDetailTitle">选择日期</h3>
+        <button class="btn-add-post" onclick="openModal()">+ 添加</button>
+      </div>
+      <div id="calPosts"><div class="empty-cal">点击日期查看或添加发布计划</div></div>
+    </div>
+  </div>
+</div>
+
+<!-- ══ PAGE 4: NOTES ══ -->
+<div class="page" id="page-notes">
+  <div class="page-header">
+    <h1>灵感速记</h1>
+    <p>随手记下想法 · 不让灵感溜走</p>
+  </div>
+
+  <div class="note-input-wrap">
+    <div class="note-input-top">
+      <textarea id="noteInput" placeholder="刚刚想到的……在路上看到的……客户说的某句话……"></textarea>
+    </div>
+    <div class="note-input-bottom">
+      <div class="note-type-btns">
+        <button class="ntbtn active" data-type="idea" onclick="setNoteType(this)">选题灵感</button>
+        <button class="ntbtn" data-type="obs" onclick="setNoteType(this)">现场观察</button>
+        <button class="ntbtn" data-type="feel" onclick="setNoteType(this)">感受</button>
+        <button class="ntbtn" data-type="other" onclick="setNoteType(this)">其他</button>
+      </div>
+      <button class="btn-note" onclick="saveNote()">记下</button>
+    </div>
+  </div>
+
+  <div class="note-search-wrap">
+    <span class="note-search-icon">🔍</span>
+    <input type="text" id="noteSearch" placeholder="搜索灵感…" oninput="renderNotes()">
+  </div>
+  <div class="notes-list" id="notesList"></div>
+</div>
+
+<!-- COPY TO CLAUDE MODAL -->
+<div class="copy-modal-overlay" id="copyModalOverlay">
+  <div class="copy-modal">
+    <h2>发给 Claude</h2>
+    <div class="copy-modal-hint">复制下方内容，粘贴到 Claude 对话框，我会直接理解背景并开始生成脚本。</div>
+    <div class="copy-modal-text" id="copyModalText"></div>
+    <div class="copy-modal-actions">
+      <button class="btn-cancel" onclick="closeCopyModal()">关闭</button>
+      <button class="btn-confirm" onclick="doCopy()">复制</button>
+    </div>
+  </div>
+</div>
+
+
+
+<!-- NAV -->
+<nav>
+  <button class="nav-item active" data-page="shots" onclick="switchPage(this)">
+    <span class="nav-icon">📋</span><span>清单</span>
+  </button>
+  <button class="nav-item" data-page="ideas" onclick="switchPage(this)">
+    <span class="nav-icon">🎬</span><span>脚本</span>
+  </button>
+  <button class="nav-item" data-page="cal" onclick="switchPage(this)">
+    <span class="nav-icon">📅</span><span>日历</span>
+  </button>
+  <button class="nav-item" data-page="notes" onclick="switchPage(this)">
+    <span class="nav-icon">⚡</span><span>灵感</span>
+  </button>
+</nav>
+
+<script>
+// ── UTILS ─────────────────────────────────────────────
+function store(k,v){try{localStorage.setItem(k,JSON.stringify(v));}catch(e){}}
+function load(k,d=null){try{const v=localStorage.getItem(k);return v?JSON.parse(v):d;}catch(e){return d;}}
+function toast(msg){
+  const t=document.getElementById('toast');
+  t.textContent=msg;t.classList.add('show');
+  setTimeout(()=>t.classList.remove('show'),2200);
+}
+function fmtDate(d){return d.toLocaleDateString('zh-CN',{month:'long',day:'numeric',weekday:'short'});}
+
+// ── NAV ───────────────────────────────────────────────
+function switchPage(btn){
+  document.querySelectorAll('.nav-item').forEach(b=>b.classList.remove('active'));
+  document.querySelectorAll('.page').forEach(p=>p.classList.remove('active'));
+  btn.classList.add('active');
+  document.getElementById('page-'+btn.dataset.page).classList.add('active');
+  window.scrollTo(0,0);
+}
+
+// ══════════════════════════════════════════════════════
+// PAGE 1: SHOTS DATA + RENDER
+// ══════════════════════════════════════════════════════
+const LOCATIONS=[
+  {id:"home",icon:"🏠",name:"室内 · 家",sub:"早晨起床后 · 随时",shots:[
+    {id:"h1",scene:"手机屏幕 — 微信消息列表",time:"early",tName:"☀️ 早晨 7:00–8:00",launch:true,dev:"手机",ori:"竖屏",visual:"手机屏幕，微信消息列表，时间戳可见。不出镜，只拍屏幕。找一条与工作相关的消息。\n\n拍摄角度：另一部手机俯拍屏幕，保证文字清晰可读。屏幕亮度调高，避免反光。",audio:"【字幕】国内比这里早6小时，他们8点的消息，我刚起床。\n\n【声音】手机通知声，无背景音乐。",tip:"提前找好有工作属性的消息，调好屏幕亮度。"},
+    {id:"h2",scene:"工作桌面全貌 — 电脑+咖啡+窗外晨光",time:"early",tName:"☀️ 早晨",launch:false,dev:"Pocket 3",ori:"横屏→裁竖",visual:"你的工作桌面——电脑、笔记本、咖啡、窗外卡萨布兰卡晨光。一个静止全景镜头。\n\n拍摄角度：Pocket 3 固定在对面，与桌面齐高，略俯角。",audio:"【字幕】这是我每天开始工作的地方。\n（或无字幕，b-roll备用。）",tip:"「外贸人的工作台」选题素材，窗外有光线最好。"},
+    {id:"h3",scene:"处理英文询盘/法语邮件 — 录屏",time:"early",tName:"☀️ 早晨",launch:false,dev:"手机（录屏）",ori:"竖屏",visual:"打开邮件或WhatsApp处理多语言消息。不需要暴露内容，录屏拍操作状态。",audio:"【口述·画外音】我每天要用几种语言处理工作——中文、英文、偶尔法文。\n\n【声音】键盘声，环境音。",tip:"「我每天要用几种语言处理工作」可做独立选题。"},
+    {id:"h4",scene:"冰箱内容物 — 摩洛哥食材与中国调料混搭",time:"any",tName:"📌 随时",launch:false,dev:"手机",ori:"竖屏",visual:"打开冰箱，拍里面的东西。摩洛哥本地蔬菜、从国内带来的调料混在一起。",audio:"【字幕】在卡萨布兰卡住了6年，我的冰箱里有这些。",tip:"「在摩洛哥的中国人冰箱里有什么」是小红书高传播选题。"},
+    {id:"h5",scene:"在家做饭 — 用摩洛哥食材做中国菜",time:"noon",tName:"🌤 中午",launch:false,dev:"手机 / Nano",ori:"竖屏",visual:"用摩洛哥食材做中国菜或中国调料做摩洛哥菜。拍食材、锅里状态、出锅。",audio:"【口述·画外音】在摩洛哥买不到XX，我用XX代替。",tip:"中西食材反差感强，生活感内容。"},
+  ]},
+  {id:"gym",icon:"🏋️",name:"楼下健身房",sub:"早晨 7:30 前后",shots:[
+    {id:"g1",scene:"健身房环境 — 「不是中国健身房」的角度",time:"early",tName:"☀️ 早晨 7:30",launch:true,dev:"Pocket 3",ori:"竖屏",visual:"找能看出「不是中国健身房」的角度——器械老旧、墙面质感或窗外街景。不拍运动过程。\n\n拍摄角度：固定机位，找到有异域感的背景后静止拍5秒。",audio:"【字幕】7:30，楼下。\n\n【声音】健身房环境音，无背景音乐。",tip:"提前确认光线最好的角度，找「异域感」最强的背景。"},
+    {id:"g2",scene:"健身房内其他人 — 摩洛哥人怎么健身",time:"early",tName:"☀️ 早晨",launch:false,dev:"Nano",ori:"竖屏",visual:"拍摩洛哥本地人运动的状态。拍动作，不拍正脸。\n\n拍摄角度：Nano 从侧面或背面，不打扰对方。",audio:"【声音】健身房环境音。\n（b-roll备用。）",tip:"「卡萨布兰卡健身房和国内的区别」是有反差感的轻选题。"},
+    {id:"g3",scene:"健身房收费标准 — 生活成本对比",time:"any",tName:"📌 随时",launch:false,dev:"手机",ori:"竖屏",visual:"拍一下健身房的收费标准或会员卡。\n\n拍摄角度：手机平拍价目表，清晰即可。",audio:"【口述·出镜】在摩洛哥健身，一个月多少钱？折合人民币大概是——",tip:"生活成本对比类内容在小红书传播很好。"},
+  ]},
+  {id:"street",icon:"🛣️",name:"卡萨布兰卡街头",sub:"出门路上 · 随时",shots:[
+    {id:"s1",scene:"现代街头 — 高楼车流咖啡馆（引爆点开场）",time:"noon",tName:"🌤 上午 10点前",launch:true,dev:"Pocket 3",ori:"竖屏",visual:"高楼、车流、咖啡馆露台、西装革履的摩洛哥上班族。\n\n拍摄角度：手持跟拍从咖啡馆门口向街道推进，或站在路口拍车流。光线亮，现代感。",audio:"【字幕·白字黑底】大多数人以为摩洛哥是这样的——\n\n【声音】城市街道环境音，无背景音乐。",tip:"早上10点前或下午5点后光线最好。提前踩点，确认哪个街角现代感最强。"},
+    {id:"s2",scene:"出镜建立身份 — 「在这里做生意第6年」",time:"noon",tName:"🌤 上午",launch:true,dev:"Pocket 3",ori:"竖屏",visual:"你出镜，站在卡萨布兰卡街头，自然光，背景是真实城市街道。\n\n拍摄角度：手持，与眼睛等高，稍仰角，背景街道清晰。说话状态平静，陈述事实。",audio:"【口述·出镜】但我住的摩洛哥，是这样的。在这里做生意第6年了。\n\n说完硬切，不停顿。",tip:"平静陈述比兴奋表达更有力量。"},
+    {id:"s3",scene:"出门跟拍 — 说今天安排",time:"noon",tName:"🌤 出门时",launch:true,dev:"Pocket 3",ori:"竖屏",visual:"你走在街头，手持跟拍，出镜说话。\n\n拍摄角度：手持，眼睛高度，跟着你走，背景街道虚焦。",audio:"【口述·出镜·边走边说】今天下午要去见个客户，做了两年了，第一次去他们仓库。",tip:"「第一次去他们仓库」制造小悬念，说完立刻硬切，不解释。"},
+    {id:"s4",scene:"现代建筑群 — 城市体量感",time:"noon",tName:"🌤 上午",launch:true,dev:"Pocket 3",ori:"竖屏",visual:"卡萨布兰卡现代建筑群或宽阔主干道车流。\n\n拍摄角度：固定机位或缓慢横移，展示城市纵深感。不要手持晃动。",audio:"【口述·画外音】这里是卡萨布兰卡，摩洛哥最大的城市。500万人口，全国三分之一的钱在这里流动。\n\n【字幕】500万人口 / 全国经济中心",tip:"找高点或宽阔路口，体现城市规模感。"},
+    {id:"s5",scene:"街边早餐摊 — 3块钱在卡萨布兰卡吃什么",time:"early",tName:"☀️ 早晨",launch:false,dev:"Nano",ori:"竖屏",visual:"街边早餐摊，食物、价格、摊主。\n\n拍摄角度：Nano 低角度拍摊位，背景是街道，体现在地感。",audio:"【口述·出镜】在卡萨布兰卡，3块钱人民币，你能吃到什么——",tip:"「生活成本对比」类内容传播极好。"},
+    {id:"s6",scene:"旧麦地那窄巷 — 历史街区",time:"noon",tName:"🌤 上午/下午",launch:false,dev:"Pocket 3",ori:"竖屏",visual:"历史最老街区的窄巷、小摊、传统手工。\n\n拍摄角度：手持跟拍走进窄巷，体现历史与现代的对比。",audio:"【字幕】同一座城市，两个时代。\n\n【声音】街巷环境音，人声。",tip:"和现代街头画面并排剪辑，「祛魅」效果最强。"},
+    {id:"s7",scene:"夜晚街头 — 卡萨布兰卡夜间灯光",time:"eve",tName:"🌆 夜晚",launch:false,dev:"Pocket 3",ori:"竖屏",visual:"夜晚街头、灯光、人流。手持，不刻意构图，真实夜间街道。",audio:"【声音】夜晚环境音，无台词。\n（b-roll备用。）",tip:"目前所有素材都是白天，夜晚是空白维度，尽早积累。"},
+    {id:"panda1",scene:"【熊猫挂件】开场 — 手持挂件出镜，交代动机",time:"any",tName:"📌 随时",launch:false,dev:"Pocket 3",ori:"竖屏",visual:"手持熊猫挂件特写，背景虚化为卡萨布兰卡街头。出镜半身，随意站着，不刻意构图。\n\n拍摄角度：Pocket 3 手持，自拍或请人拍，眼睛高度，背景街道可见即可。",audio:"【画外音，平静】回国采货，顺手带了一批熊猫挂件回来。不值什么钱，但我想做个实验——\n【出镜】把它们随机送给卡萨布兰卡的普通人，看看会发生什么。",tip:"这是全视频的动机交代，语气平静陈述，不要兴奋。说完立刻硬切第一个场景。"},
+    {id:"panda3",scene:"【熊猫挂件】场景二 — 停车保安",time:"any",tName:"📌 随时",launch:false,dev:"Nano",ori:"竖屏",visual:"街边停车位。Nano 近景拍保安的手和表情。环境音：街道、车声全部保留。把挂件递过去，观察第一反应，不引导。如果他挂到钥匙上或别在衣服上，停在这个画面3秒不说话。",audio:"【画外音】停车保安，每天见面，从来没送过他东西。\n【字幕（静默画面压字）】他没说谢谢，直接挂上去了。\n我觉得这比说谢谢更好。",tip:"保安反应平淡也没关系，平淡本身就是真实。3秒静默画面不要剪掉。"},
+    {id:"panda4",scene:"【熊猫挂件】场景三 — 路边小孩",time:"any",tName:"📌 随时",launch:false,dev:"手机",ori:"竖屏",visual:"街头或市场附近，遇到小孩的自然场景，手机竖屏随手抓拍。环境音全保留，不加配乐。拍小孩拿到挂件的反应、表情、动作。画面停够3–4秒，让画面自己说话。",audio:"【画外音，极简】小孩不用解释熊猫是什么。\n【之后无台词，画面停3–4秒。】",tip:"小孩反应最真，这个场景如果质量好可以放到最后压轴。遇到机会随时拍，不要错过。"},
+  ]},
+  {id:"marrakesh",icon:"🇲🇦",name:"马拉喀什素材（翻拍）",sub:"引爆点·反转镜头",shots:[
+    {id:"m1",scene:"网红画面 — 红城墙、骆驼、蓝天（翻拍）",time:"any",tName:"📌 历史素材",launch:true,dev:"手机（翻拍）",ori:"竖屏",visual:"你去过马拉喀什的照片/视频均可。如果没有，手机对着电脑屏幕翻拍也行，真实感反而更好。静止画面即可，不需要运镜。",audio:"【字幕】↑ 这是马拉喀什。\n\n【声音】无。",tip:"这个镜头的目的是建立「观众的预期」，越接近网红滤镜感越好。"},
+  ]},
+  {id:"market",icon:"🏪",name:"德比市场",sub:"下午 · 随时可去",shots:[
+    {id:"mk1",scene:"主通道行走 — 环境音全开（引爆点·体量）",time:"aft",tName:"🌇 下午",launch:true,dev:"Pocket 3",ori:"竖屏",visual:"进市场，手持跟拍走进主通道，连续行走15秒。不说话，不字幕。\n\n拍摄角度：胸口高度，匀速前进，体现市场纵深和体量。",audio:"【声音】市场环境音全开——人声、叫卖声、阿拉伯语、摩托车声。无台词，无字幕。",tip:"这段不能剪短，市场的嘈杂感是卡萨布兰卡最独特的听觉符号。"},
+    {id:"mk2",scene:"摊位扫描 — 中间商结构",time:"aft",tName:"🌇 下午",launch:true,dev:"Nano",ori:"竖屏",visual:"镜头缓慢扫过几个不同品类摊位。不说具体是什么货。\n\n拍摄角度：Nano 从侧面低角度扫过摊位，让货物填满画面。",audio:"【口述·出镜】一件从义乌出来的货，到摩洛哥消费者手里，中间至少要过三道手。进口商、批发商、零售商——\n（停顿）我在的位置，是最前面那一层。",tip:"「我在的位置，是最前面那一层」让观众瞬间理解你在链条里的角色。"},
+    {id:"mk3",scene:"和摊主打招呼·对方倒茶 — 文化核心",time:"aft",tName:"🌇 下午",launch:true,dev:"Nano",ori:"竖屏",visual:"走进一家店，与摊主打招呼，对方给你倒茶。拍倒茶、递茶、坐下的动作。\n\n拍摄角度：Nano 放在侧面固定机位侧拍，拍手、茶杯、动作。",audio:"【画外音】在摩洛哥，第一次见面谈生意，对方一定先给你倒茶。这不是客套，这是规则。\n\n【声音】茶杯碰撞声、店内阿拉伯语人声，全部保留。",tip:"如果摊主不愿被拍，只拍你手里的茶杯也可以。"},
+    {id:"mk4",scene:"欧洲货与中国货同框 — 竞争格局",time:"aft",tName:"🌇 下午",launch:true,dev:"Pocket 3",ori:"竖屏",visual:"找欧洲品牌商品或摊位，和旁边的中国货放在同一镜头。\n\n拍摄角度：Pocket 3 拍摊位全景，两种货品都清晰可见。",audio:"【口述·出镜】这个市场里，中国货不是唯一的外来者。欧洲货也在，土耳其货也在。摩洛哥的消费者，比你想象的更挑剔。\n（停顿）这里不是蓝海，是一个真实的市场，有竞争，有规则，也有机会。",tip:"「这里不是蓝海」对B端受众冲击力极强。"},
+    {id:"mk5",scene:"认识的中国货 — 「这件我知道从哪来」",time:"aft",tName:"🌇 下午",launch:false,dev:"Nano",ori:"竖屏",visual:"找到一件你认识的中国货，拍它放在摩洛哥摊位上的样子。\n\n拍摄角度：Nano 近景特写，货品和摊位背景都在画面内。",audio:"【口述·出镜】这个，我知道从哪来的。\n（不展开，让观众脑补。）",tip:"「中国制造在非洲的真实命运」系列最直观素材。"},
+    {id:"mk6",scene:"价格标签或批发价 — 数字对比",time:"aft",tName:"🌇 下午",launch:false,dev:"手机",ori:"竖屏",visual:"市场里的批发价格标签，或讨价还价结束后说过程。\n\n拍摄角度：手机平拍价格牌，清晰可读。",audio:"【口述·出镜】这个东西在义乌的出厂价是XX，在这里的批发价是XX，到消费者手里是XX。",tip:"两个数字放在一起，是外贸内容里信息量最炸裂的素材。"},
+  ]},
+  {id:"gongcha",icon:"🍵",name:"贡茶",sub:"每天下午 · 每日积累",shots:[
+    {id:"gc1",scene:"固定机位 — 说一句话+10秒留白",time:"aft",tName:"🌇 下午",launch:true,dev:"Pocket 3",ori:"竖屏",visual:"你坐在贡茶，打开电脑或手机。固定机位，说完一句话后继续做事，镜头再停留10秒。\n\n拍摄角度：Pocket 3 放在对面，略低于眼睛高度仰拍。背景必须有店内摩洛哥风格装饰和其他客人。",audio:"【口述·出镜】每天下午都来这里，处理线上的东西。这家店的老板认识我6年了。\n\n【10秒无台词】\n\n【声音】店内人声、茶杯声、阿拉伯语背景音——全部保留。",tip:"那10秒无台词的留白是整个账号「陪伴感」的核心，剪辑时绝对不要剪掉。"},
+    {id:"gc2",scene:"出镜说谈生意文化 — 第二条核心段落",time:"aft",tName:"🌇 下午",launch:true,dev:"Pocket 3",ori:"竖屏",visual:"你坐在贡茶，出镜，看镜头说话。\n\n拍摄角度：Pocket 3 固定桌上，略低于眼睛高度。",audio:"【口述·出镜】我刚来的时候，恨不得见一次面把合同谈完。但这里不行。第一次见面，聊你是谁，从哪来，喝茶。第二次聊货，聊量，喝茶。第三次才谈价格。\n\n我花了将近一年才明白——他们不是不想谈，他们在用这个时间判断你这个人值不值得做生意。",tip:"说话节奏放慢，每句话之间留半拍，这是全片信息密度最高的地方。"},
+    {id:"gc3",scene:"喝茶放杯停顿 — 不说话看窗外",time:"aft",tName:"🌇 下午",launch:true,dev:"Nano",ori:"竖屏",visual:"你喝一口茶，放下茶杯，看向窗外。不说话停顿2秒，然后说最后两句。\n\n拍摄角度：Nano 近景，拍你喝茶放杯的动作特写，然后拉开到面部。",audio:"【2秒无台词，只有茶杯声和环境音】\n\n【口述·出镜】现在我每天下午都来这里坐一坐。有时候觉得，这里的做生意方式，比我习惯的那种，其实不差。\n\n说完镜头停2秒，切走。",tip:"2秒停顿不要剪掉，这是第二条最有重量的情绪时刻。"},
+    {id:"gc4",scene:"薄荷茶特写 — 倒茶瞬间",time:"aft",tName:"🌇 下午",launch:false,dev:"Nano",ori:"竖屏",visual:"薄荷茶被端上来或倒入杯中的瞬间。\n\n拍摄角度：Nano 低角度近景，对准茶杯，背景虚焦。",audio:"【字幕】在卡萨布兰卡，下午喝什么。\n\n【声音】茶倒进杯子的声音。",tip:"小选题，传播容易，是账号「体温」的来源。"},
+    {id:"gc5",scene:"贡茶老板 — 「今天遇到的人」",time:"aft",tName:"🌇 下午",launch:false,dev:"Nano",ori:"竖屏",visual:"贡茶老板在工作的样子，或常驻顾客的状态。10秒素材。\n\n拍摄角度：Nano 侧面拍，不打扰。",audio:"【字幕】这家店的老板认识我6年了。\n（「今天遇到的人」系列的素材。）",tip:"固定栏目「今天遇到的人」的最自然起点就在贡茶。"},
+    {id:"gc6",scene:"窗外街景 — 不同天气时段",time:"any",tName:"📌 随时",launch:false,dev:"Pocket 3",ori:"横屏→裁竖",visual:"从贡茶的窗户或门口往外看的卡萨布兰卡街道。不同天气、不同时间段多拍几条。\n\n拍摄角度：Pocket 3 固定在窗口，前景有窗框或桌面。",audio:"【声音】街道环境音，无台词。\n（高质量b-roll，适合任何选题。）",tip:"每次来都拍一条，是全账号最高质量的b-roll素材来源。"},
+    {id:"panda2",scene:"【熊猫挂件】场景一 — 咖啡店店员",time:"aft",tName:"🌇 下午",launch:false,dev:"Pocket 3",ori:"竖屏",visual:"贡茶柜台，Pocket 3 稳定跟拍。环境音：咖啡机声、背景人声全部保留。把挂件递给店员，不说话，等她的反应自然发生，不引导。\n\n拍摄角度：站在柜台侧面，拍递出挂件和对方反应的过程。",audio:"【画外音，简短】第一个，咖啡店的店员，认识两年了。\n【字幕（如对方问「这是什么动物？」）】她问我：这个熊，是真实存在的吗？\n【你回应·出镜】中国有，只有中国有。",tip:"如果她直接笑着收下而没有问，也很好。不要事先解释是什么，让反应100%真实。"},
+    {id:"panda5",scene:"【熊猫挂件】结尾 — 贡茶固定机位收场",time:"aft",tName:"🌇 下午",launch:false,dev:"Pocket 3",ori:"竖屏",visual:"你坐在贡茶，桌上还剩几个挂件，窗外街景可见。Pocket 3 固定机位，你看向镜头外，不直视镜头。下午光线拍，窗外街景有质感。\n\n拍摄角度：Pocket 3 放在对面桌上，略低于眼睛高度。",audio:"【画外音，慢，有停顿感】在这里做生意6年，\n有时候一个小东西，\n比一张名片管用。\n【画面停留2秒，自然结束，不加任何引导。】",tip:"这是全视频情绪收尾，台词要慢，每句之间停顿半拍。说完不加任何引导直接结束。"},
+  ]},
+  {id:"client",icon:"🏭",name:"客户 · 工业区",sub:"拜访客户时",shots:[
+    {id:"cl1",scene:"工业区外景 — 到达前车内拍",time:"aft",tName:"🌇 下午",launch:true,dev:"手机",ori:"竖屏",visual:"到达前，车内或路上随手拍周边街区。不进入客户内部。\n\n拍摄角度：手机从车窗拍，或在路上随手对着工业区街道拍。",audio:"【字幕】客户在卡萨布兰卡工业区。\n\n【声音】车窗外环境音。",tip:"「卡萨布兰卡的工业区长什么样」对国内观众是全新信息。"},
+    {id:"cl2",scene:"拜访结束后走出来 — 不拍过程只拍结果",time:"aft",tName:"🌇 下午",launch:true,dev:"Pocket 3",ori:"竖屏",visual:"【重要：不拍谈话过程，只拍走出来之后】\n走出来，卡萨布兰卡街头，自然光，手持。\n\n拍摄角度：低角度仰拍你走出来，背景是工业区街道。走出来后对着镜头说话。",audio:"【口述·出镜】聊了将近两个小时，他问我货什么时候到。\n\n说完不解释，硬切下一场景。",tip:"不说谈了什么、结果好不好，台词的留白让观众脑补，张力更大。"},
+    {id:"cl3",scene:"客户店面/仓库内部（需同意）",time:"aft",tName:"🌇 下午",launch:false,dev:"Nano",ori:"竖屏",visual:"客户在自己店面或仓库工作的样子。不需要采访，就是他做生意的状态。\n\n拍摄角度：Nano 侧面拍，不打扰。",audio:"【画外音】他做这行十几年了，这片市场他比我熟。",tip:"「一个摩洛哥商人的一天」护城河内容的核心素材，提前征得同意。"},
+    {id:"cl4",scene:"你们一起喝茶 — 两人对坐",time:"aft",tName:"🌇 下午",launch:false,dev:"Nano",ori:"竖屏",visual:"你和客户一起喝茶，两个来自不同文化的生意人坐在一起。\n\n拍摄角度：Nano 放在侧面桌上，固定机位，拍两人对坐的状态。",audio:"【声音】茶杯声、环境音、两人低声交谈。\n\n【字幕】6年，从陌生人到熟客。",tip:"这个画面本身已经是内容，两种文化相遇的瞬间。"},
+  ]},
+  {id:"warehouse",icon:"📦",name:"仓库",sub:"货柜到达当天",shots:[
+    {id:"w1",scene:"开场 — 家里或贡茶建立时间跨度",time:"any",tName:"📌 货到当天",launch:true,dev:"手机 / Pocket 3",ori:"竖屏",visual:"不在仓库，在家里或贡茶。出镜，看镜头说两句话，说完硬切仓库。",audio:"【口述·出镜】三个月前在义乌下的订单，今天货到仓库了。\n\n说完立即切仓库，不停顿。",tip:"两句话建立时间跨度，观众在看到货柜之前已感受到等待的重量。"},
+    {id:"w2",scene:"货柜车到达 — 停下来的10秒",time:"any",tName:"📌 货柜到达时",launch:true,dev:"Pocket 3",ori:"横屏→裁竖",visual:"货柜车开进来或停下来。不说话，不字幕，环境音全开，画面停足10秒，不剪短。",audio:"【声音】引擎声、工人声（阿拉伯语/达里贾语保留）、仓库环境音。无台词，无字幕。",tip:"货柜车停下的画面是全片信息密度最高的一帧，不要用台词破坏这个空间。"},
+    {id:"w3",scene:"柜门打开的瞬间",time:"any",tName:"📌 货柜到达时",launch:true,dev:"Pocket 3",ori:"竖屏",visual:"货柜门被打开的那一刻。出镜或画外音说一句话。\n\n拍摄角度：站在货柜侧面，拍门打开的瞬间。",audio:"【口述·出镜或画外音】从义乌装柜，到卡萨布兰卡港，这个门已经关了将近一个月。",tip:"「这个门已经关了将近一个月」——时间感是这句话最重要的东西。"},
+    {id:"w4",scene:"卸货过程 — 工人和环境音",time:"any",tName:"📌 货柜到达时",launch:true,dev:"Nano",ori:"竖屏",visual:"工人在卸货，货件落地，你站在旁边看。货物保持纸箱/整体视角，不特写单件。",audio:"【声音】纯环境音，工人对话（阿拉伯语）、货件落地声。无台词，无字幕。",tip:"工人说阿拉伯语的声音不要消掉，这是你和国内外贸博主最本质的差异。"},
+    {id:"w5",scene:"货卸完全景 — 走进画面停顿2秒",time:"any",tName:"📌 货柜到达时",launch:true,dev:"Pocket 3",ori:"横屏→裁竖",visual:"所有货堆好，仓库全景。你走进画面站在货堆旁，说一句话，然后停顿2秒看货堆，不说话。",audio:"【口述·出镜】都到了，没有破损。\n\n（停顿2秒，看货，不说话。）",tip:"那2秒停顿比任何台词都有力量，剪辑时不要把它剪掉。"},
+    {id:"w6",scene:"走出仓库 — 最后一句话",time:"any",tName:"📌 货柜到达时",launch:true,dev:"Pocket 3",ori:"竖屏",visual:"走出仓库，外面是卡萨布兰卡街道和阳光。出镜说最后一句，黑屏。",audio:"【口述·出镜】接下来就是卖出去。\n\n黑屏。",tip:"不说卖给谁、多少钱——就这五个字，黑屏。"},
+    {id:"w7",scene:"空仓/半满/满仓 — 三种状态",time:"any",tName:"📌 随时",launch:false,dev:"Pocket 3",ori:"横屏→裁竖",visual:"仓库本身的空间，三种状态各拍一次。\n\n拍摄角度：站在仓库入口或角落，Pocket 3 固定，拍仓库全景。",audio:"【字幕】一个在北非做外贸的中国人，他的仓库长什么样。",tip:"这个选题99%的观众从来没想过，本身就有流量。"},
+  ]},
+  {id:"port",icon:"⚓",name:"卡萨布兰卡港口",sub:"提柜时 · 港口外围",shots:[
+    {id:"p1",scene:"港口外围公路 — 货柜车队",time:"any",tName:"📌 提柜时",launch:false,dev:"Pocket 3",ori:"横屏→裁竖",visual:"港口外围公路，停着的货柜车队，港口大门或围栏外的全景。不需要进港。",audio:"【字幕】卡萨布兰卡港，非洲最大人工港之一。\n\n【声音】港口环境音，车辆声。",tip:"对国内观众冲击力强，大多数人没想过非洲有这样的港口。"},
+    {id:"p2",scene:"等提柜 — 等待的状态",time:"any",tName:"📌 提柜时",launch:false,dev:"手机",ori:"竖屏",visual:"你等提柜时坐在车里或站在港口外的样子，货代App界面或发呆的状态。",audio:"【口述·出镜】提个柜子，有时候要等两三个小时。在摩洛哥，急没有用。",tip:"「在摩洛哥提一个货柜要花多长时间」——这个问题观众没想过。"},
+  ]},
+  {id:"beach",icon:"🌊",name:"海边",sub:"傍晚日落时",shots:[
+    {id:"b1",scene:"日落海浪 — 纯画面留白",time:"eve",tName:"🌆 傍晚·日落时",launch:true,dev:"手机 / Pocket 3",ori:"横屏→裁竖",visual:"手持，日落，海浪。不刻意构图，随手拍。\n\n拍摄角度：手持低角度，对着海平线和落日，让海浪声充满画面。",audio:"【声音】海浪声，环境音。无台词，无字幕。",tip:"日落前30分钟到位。全片唯一「什么都不解释」的镜头，不要剪短。"},
+    {id:"b2",scene:"你的背影 — 一个人看海",time:"eve",tName:"🌆 傍晚",launch:true,dev:"Pocket 3",ori:"竖屏",visual:"你站在海边，背对镜头或侧身，看海的背影。不出镜说话。\n\n拍摄角度：Pocket 3 固定，低角度，拍你的背影和海岸线。",audio:"【画外音（收尾）】这6年里，有很多事是我来之前完全没想到的。\n（停顿）慢慢说。",tip:"背影比出镜更有力量，三条视频的结尾画面。"},
+    {id:"b3",scene:"海边其他人 — 摩洛哥人傍晚做什么",time:"eve",tName:"🌆 傍晚",launch:false,dev:"Nano",ori:"竖屏",visual:"摩洛哥人在海边的状态——遛弯、坐着发呆、带孩子玩。拍状态，不拍正脸。",audio:"【声音】海浪声，人声，环境音。无台词。",tip:"普通摩洛哥人的生活状态，是账号护城河内容。"},
+    {id:"b4",scene:"海岸线全景 — 卡萨布兰卡与大西洋",time:"eve",tName:"🌆 傍晚",launch:false,dev:"Pocket 3",ori:"横屏→裁竖",visual:"海岸线全景，或哈桑二世清真寺在海边的轮廓，傍晚拍效果最好。\n\n拍摄角度：找制高点或远景角度，拍海岸线全貌。",audio:"【字幕】这座城市临着大西洋。\n\n【声音】海浪声。",tip:"很多国内观众不知道摩洛哥有大西洋海岸线，冲击力强。"},
+  ]},
+  {id:"language",icon:"🗣️",name:"语言场景",sub:"任何多语言沟通时刻",shots:[
+    {id:"l1",scene:"翻译软件 — 和工人沟通",time:"any",tName:"📌 仓库/市场时",launch:false,dev:"手机",ori:"竖屏",visual:"你用翻译软件和工人沟通的那一刻。手机屏幕+对话过程，30秒素材。",audio:"【口述·画外音】语言不通，但生意还是做成了。6年了，习惯了。",tip:"「语言夹缝里的生意人」系列核心素材。"},
+    {id:"l2",scene:"多语言菜单/合同 — 阿语法语中文同框",time:"any",tName:"📌 随时",launch:false,dev:"手机",ori:"竖屏",visual:"同时出现阿拉伯语、法语（有时还有中文）的菜单、价格牌或合同文件。\n\n拍摄角度：手机平拍，清晰可读，让三种语言都在画面内。",audio:"【口述·出镜】这是阿语，这是法语，这是中文。在这里做生意，你需要同时看懂三种文字。",tip:"视觉上就是一个故事，不需要任何解说已经有力量。"},
+    {id:"l3",scene:"手机时区显示 — 两个时区同屏",time:"any",tName:"📌 随时",launch:false,dev:"手机（录屏）",ori:"竖屏",visual:"手机上同时显示卡萨布兰卡时间和北京时间的界面。",audio:"【字幕】我每天活在两个时区里。",tip:"「活在两个时区」是外贸人最独特的生活感受。"},
+    {id:"l4",scene:"汇率换算 — 三种货币",time:"any",tName:"📌 随时",launch:false,dev:"手机（录屏）",ori:"竖屏",visual:"汇率转换App，迪拉姆/人民币/美元三种货币之间换算。",audio:"【口述·出镜】在摩洛哥做生意，我每天要换算三种货币。",tip:"「外贸人的屏幕里有什么」系列，零成本拍摄。"},
+  ]},
+  {id:"panda",icon:"🐼",name:"熊猫挂件 · 随机送礼",sub:"出门时 · 咖啡店/街头/停车位",shots:[
+    {id:"pd1",scene:"开场 — 手持挂件出镜，交代动机",time:"any",tName:"📌 出门前随时",launch:true,dev:"Pocket 3",ori:"竖屏",visual:"手持熊猫挂件特写，背景虚化为卡萨布兰卡街头。出镜半身，随意站着，不刻意构图。\n\n拍摄角度：Pocket 3 手持，眼睛高度，背景街道虚焦。",audio:"【画外音，平静】回国采货，顺手带了一批熊猫挂件回来。不值什么钱，但我想做个实验——\n【出镜】把它们随机送给卡萨布兰卡的普通人，看看会发生什么。",tip:"说话平静，不兴奋。挂件特写停够2秒再切出镜，让观众先看清楚是什么。"},
+    {id:"pd2",scene:"场景一：咖啡店店员收到挂件的反应",time:"aft",tName:"🌇 下午（贡茶/常去咖啡店）",launch:true,dev:"Pocket 3",ori:"竖屏",visual:"贡茶或常去咖啡店柜台。Pocket 3 稳定跟拍。你把挂件递过去，不说话，等她反应。让反应自然发生，不引导。\n\n拍摄角度：侧面或略斜角，同时拍到你递出的手和对方表情。环境音：咖啡机声、背景人声全部保留。",audio:"【画外音，简短】第一个，咖啡店的店员，认识两年了。\n【字幕补充（如对方问「这是什么动物？」）】她问我：这个熊，是真实存在的吗？\n【你回应】中国有，只有中国有。",tip:"认识两年这个细节很重要，说出来。如果她直接挂包上，停在这个画面3秒不说话。"},
+    {id:"pd3",scene:"场景二：停车保安收到挂件，直接挂钥匙",time:"aft",tName:"🌇 下午（街边停车位）",launch:true,dev:"Nano",ori:"竖屏",visual:"街边停车位。Nano 近景拍保安的手和表情。环境音：街道、车声保留。递过去，观察第一反应。如果他挂到钥匙上或别在衣服上，停在这个画面3秒，不说话。\n\n拍摄角度：Nano 低角度侧拍，重点拍手部动作——接过来、看、挂上去的连贯动作。",audio:"【画外音】停车保安，每天见面，从来没送过他东西。\n【字幕（静默画面压字）】他没说谢谢，直接挂上去了。\n我觉得这比说谢谢更好。",tip:"「没说谢谢直接挂上去」是这条最有力量的一句，字幕节奏放慢，每行单独出现。"},
+    {id:"pd4",scene:"场景三：路边小孩收到挂件的反应",time:"any",tName:"📌 街头/市场随时遇到",launch:true,dev:"手机",ori:"竖屏",visual:"街头或市场附近，遇到小孩的自然场景，手机竖屏抓拍。环境音全保留，不加配乐。小孩拿到挂件的反应，表情，动作。画面停够3–4秒，不需要旁白。\n\n拍摄角度：蹲下来和小孩同高，手机平拍，不要俯视角。",audio:"【画外音，极简】小孩不用解释熊猫是什么。\n【之后无台词，让画面说话，停3–4秒】",tip:"这个镜头最难提前安排，但遇到小孩随时拍。蹲下来拍，不要站着俯拍，画面平等感很重要。"},
+    {id:"pd5",scene:"结尾 — 贡茶桌上剩余挂件+收尾台词",time:"aft",tName:"🌇 下午（贡茶固定机位）",launch:true,dev:"Pocket 3",ori:"竖屏",visual:"你坐在贡茶，桌上还剩几个挂件，窗外街景可见。Pocket 3 固定机位，你看向镜头外，不直视。\n\n拍摄角度：固定桌上，略低于眼睛高度。下午光线拍，窗外街景有质感。桌上的挂件要在画面内可见。",audio:"【画外音，慢，有停顿感】在这里做生意6年，\n有时候一个小东西，\n比一张名片管用。\n【画面停留2秒，自然结束，不加任何引导。】",tip:"结尾这句话说完之后不要立刻切，让画面再停2秒。那2秒是整条视频最重要的留白。"},
+  ]},
+  {id:"yiwu",icon:"🏗️",name:"义乌 / 国内工厂",sub:"回国时拍摄",shots:[
+    {id:"y1",scene:"义乌市场 — 你选货的状态",time:"noon",tName:"🌤 回国时",launch:false,dev:"Pocket 3",ori:"竖屏",visual:"你走在义乌市场里，和供应商交谈。不需要暴露具体品类，拍行走、看货、指点的状态。",audio:"【口述·出镜或画外音】每次回国，第一站是义乌。",tip:"「一批货完整旅程」系列的起点镜头，和卡萨布兰卡仓库素材形成首尾呼应。"},
+    {id:"y2",scene:"装柜现场 — 货从工厂装进货柜",time:"any",tName:"📌 回国时",launch:false,dev:"Pocket 3",ori:"横屏→裁竖",visual:"货从工厂装进货柜的那一刻。着重拍货柜门关上的那一刻。",audio:"【口述·画外音】装进去，关门。下次见到它，是在卡萨布兰卡。",tip:"「关门」和「开门」两个瞬间并排剪辑，是全系列最强的情绪时刻。"},
+  ]},
+];
+
+// ── SHOTS RENDER ─────────────────────────────────────
+let currentFilter='all';
+let shotIdx=0;
+const filterDef=[
+  {key:'today',label:'⚡ 今日'},
+  {key:'all',label:'全部'},
+  {key:'launch',label:'⭐ 引爆三条'},
+  {key:'early',label:'☀️ 早晨'},
+  {key:'noon',label:'🌤 上午/中午'},
+  {key:'aft',label:'🌇 下午'},
+  {key:'eve',label:'🌆 傍晚/夜晚'},
+  {key:'any',label:'📌 随时'},
+];
+
+function getTodayTimeKey(){
+  const h=new Date().getHours();
+  if(h<11)return'early';
+  if(h<14)return'noon';
+  if(h<18)return'aft';
+  return'eve';
+}
+
+function renderTodayBanner(){
+  const timeKey=getTodayTimeKey();
+  const timeLabels={early:'早晨',noon:'上午/中午',aft:'下午',eve:'傍晚/夜晚'};
+  const allShots=LOCATIONS.flatMap(l=>l.shots);
+  const todayShots=allShots.filter(s=>s.time===timeKey||s.time==='any');
+  const done=todayShots.filter(s=>load('s_'+s.id)===1).length;
+  const remaining=todayShots.length-done;
+  document.getElementById('todayBanner').innerHTML=`
+    <div class="today-banner" onclick="setTodayFilter()">
+      <div class="today-banner-left">
+        <div class="today-banner-title">今日任务</div>
+        <div class="today-banner-sub">当前时段：${timeLabels[timeKey]} · 点击查看</div>
+      </div>
+      <div class="today-banner-count">${remaining}<small>待拍</small></div>
+    </div>
+  `;
+}
+
+function setTodayFilter(){
+  currentFilter='today';
+  renderFilterBar();
+  renderShots();
+  document.getElementById('filterBar').scrollLeft=0;
+}
+
+function timeClass(t){
+  const m={early:'t-early',noon:'t-noon',aft:'t-aft',eve:'t-eve',any:'t-any'};
+  return m[t]||'t-any';
+}
+
+function renderFilterBar(){
+  const bar=document.getElementById('filterBar');
+  bar.innerHTML=filterDef.map(f=>`<button class="chip${f.key===currentFilter?' active':''}" data-f="${f.key}">${f.label}</button>`).join('');
+  bar.querySelectorAll('.chip').forEach(c=>c.addEventListener('click',()=>{
+    currentFilter=c.dataset.f;
+    renderFilterBar();
+    renderShots();
+  }));
+}
+
+function renderShots(){
+  shotIdx=0;
+  const content=document.getElementById('shotsContent');
+  content.innerHTML='';
+  const todayKey=getTodayTimeKey();
+  LOCATIONS.forEach(loc=>{
+    const filtered=loc.shots.filter(s=>{
+      if(currentFilter==='all')return true;
+      if(currentFilter==='launch')return s.launch;
+      if(currentFilter==='today')return s.time===todayKey||s.time==='any';
+      return s.time===currentFilter;
+    });
+    if(!filtered.length)return;
+
+    const grp=document.createElement('div');
+    grp.className='loc-group';
+
+    const doneCnt=filtered.filter(s=>load('s_'+s.id)===1).length;
+
+    grp.innerHTML=`
+      <div class="loc-head" data-loc="${loc.id}">
+        <div class="loc-icon2">${loc.icon}</div>
+        <div class="loc-info">
+          <div class="loc-name">${loc.name}</div>
+          <div class="loc-sub">${loc.sub}</div>
+        </div>
+        <div class="loc-badge" id="lb_${loc.id}">${doneCnt}/${filtered.length}</div>
+        <div class="loc-arr">▶</div>
+      </div>
+      <div class="shots-list" id="sl_${loc.id}"></div>
+    `;
+
+    const sl=grp.querySelector('.shots-list');
+    const lh=grp.querySelector('.loc-head');
+    lh.addEventListener('click',()=>{
+      sl.classList.toggle('open');
+      lh.classList.toggle('open');
+    });
+
+    filtered.forEach(s=>{
+      shotIdx++;
+      const isDone=load('s_'+s.id)===1;
+      const card=document.createElement('div');
+      card.className='shot-card'+(isDone?' done':'');
+      card.dataset.id=s.id;
+      card.innerHTML=`
+        <div class="shot-head">
+          <div class="cb">
+            <svg width="11" height="11" viewBox="0 0 11 11" fill="none">
+              <path d="M1.5 5.5L4.5 8.5L9.5 2.5" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+            </svg>
+          </div>
+          <div class="shot-body">
+            <div class="tags-row">
+              <span class="stag ${timeClass(s.time)}">${s.tName}</span>
+              ${s.launch?'<span class="stag t-launch">⭐ 引爆三条</span>':''}
+              <span style="font-family:'DM Mono',monospace;font-size:9px;color:var(--ink4);background:var(--bg);padding:2px 6px;border-radius:3px;">#${String(shotIdx).padStart(2,'0')}</span>
+            </div>
+            <div class="shot-scene">${s.scene}</div>
+            <div class="dev-row">
+              <span class="dtag d-dev">📷 ${s.dev}</span>
+              <span class="dtag d-ori">${s.ori}</span>
+            </div>
+            <button class="expand-toggle" data-id="${s.id}"><span class="ea">▶</span> 展开详情</button>
+          </div>
+        </div>
+        <div class="shot-detail" id="sd_${s.id}">
+          <div class="det-sec">
+            <div class="det-label">画面内容 & 拍摄角度</div>
+            <div class="det-txt">${s.visual}</div>
+          </div>
+          <div class="det-sec">
+            <div class="det-label">台词 / 字幕 / 声音</div>
+            <div class="audio-box">${s.audio}</div>
+            ${s.tip?`<div class="tip-box">💡 ${s.tip}</div>`:''}
+          </div>
+        </div>
+      `;
+
+      card.querySelector('.cb').addEventListener('click',e=>{
+        e.stopPropagation();
+        const done=!card.classList.contains('done');
+        card.classList.toggle('done',done);
+        store('s_'+s.id,done?1:0);
+        updateProgress();
+        updateLocBadge(loc.id,filtered);
+      });
+
+      card.querySelector('.expand-toggle').addEventListener('click',e=>{
+        e.stopPropagation();
+        const det=document.getElementById('sd_'+s.id);
+        const btn=card.querySelector('.expand-toggle');
+        const open=det.classList.toggle('open');
+        btn.classList.toggle('open',open);
+        btn.innerHTML=`<span class="ea" style="${open?'transform:rotate(90deg)':''}">▶</span> ${open?'收起详情':'展开详情'}`;
+      });
+
+      sl.appendChild(card);
+    });
+
+    content.appendChild(grp);
+  });
+  updateProgress();
+}
+
+function updateLocBadge(locId,filtered){
+  const el=document.getElementById('lb_'+locId);
+  if(!el)return;
+  const done=filtered.filter(s=>load('s_'+s.id)===1).length;
+  el.textContent=`${done}/${filtered.length}`;
+}
+
+function updateProgress(){
+  const allShots=LOCATIONS.flatMap(l=>l.shots);
+  const total=allShots.length;
+  const done=allShots.filter(s=>load('s_'+s.id)===1).length;
+  const pct=total?Math.round(done/total*100):0;
+  document.getElementById('progFill').style.width=pct+'%';
+  document.getElementById('progNum').textContent=`${done} / ${total}`;
+}
+
+// ══════════════════════════════════════════════════════
+// PAGE 2: SCRIPTS LIBRARY + IMPORT
+// ══════════════════════════════════════════════════════
+
+// Location map: loc id → { name, icon }
+const LOC_META = {};
+LOCATIONS.forEach(l => { LOC_META[l.id] = { name: l.name, icon: l.icon }; });
+
+// Time label helper
+const TIME_LABELS = {
+  early: '☀️ 早晨',
+  noon:  '🌤 上午/中午',
+  aft:   '🌇 下午',
+  eve:   '🌆 傍晚',
+  any:   '📌 随时'
+};
+
+function timeClassFromKey(t) {
+  return {early:'t-early',noon:'t-noon',aft:'t-aft',eve:'t-eve',any:'t-any'}[t]||'t-any';
+}
+
+// ── RENDER SCRIPTS LIST ────────────────────────────────
+function renderScriptsList() {
+  const scripts = load('saved_scripts', []);
+  const el = document.getElementById('scriptsList');
+  if (!scripts.length) {
+    el.innerHTML = '<div class="empty"><div class="empty-icon">🎬</div><div>还没有脚本</div><div style="margin-top:6px;font-size:11px;color:var(--ink4);">从上方导入 JSON 文件，或在 Claude 对话里生成脚本后上传</div></div>';
+    return;
+  }
+  el.innerHTML = scripts.map((s, idx) => renderScriptCard(s, idx)).join('');
+}
+
+function renderScriptCard(s, idx) {
+  const d = s.data || {};
+  const shots = d.shots || [];
+  const statusKey = load('script_status_' + s.id, 'pending');
+  const statusMap = {pending:{label:'待拍',cls:'active-pending'},shooting:{label:'拍摄中',cls:'active-shooting'},editing:{label:'剪辑中',cls:'active-editing'},published:{label:'已发布',cls:'active-published'}};
+  const statusBtns = Object.entries(statusMap).map(([k,v])=>`<button class="script-status-btn${statusKey===k?' '+v.cls:''}" onclick="event.stopPropagation();setScriptStatus('${s.id}',this,'${k}')">${v.label}</button>`).join('');
+  return `
+    <div class="script-video-card" id="svc_${s.id}">
+      <div class="svc-header" onclick="toggleScriptCard('${s.id}', this)">
+        <div class="svc-num">#${String(idx + 1).padStart(2,'0')}</div>
+        <div class="svc-info">
+          <div class="svc-title">${d.title || s.idea || '未命名脚本'}</div>
+          <div class="svc-meta">
+            <span class="svc-tag">${shots.length} 个镜头</span>
+            ${d.duration ? `<span class="svc-tag">${d.duration}</span>` : ''}
+            ${d.positioning ? `<span class="svc-tag gold">${d.positioning.split(/[，,]/)[0]}</span>` : ''}
+          </div>
+          <div class="script-status-row">${statusBtns}</div>
+        </div>
+        <button class="svc-del" onclick="event.stopPropagation();delScriptConfirm('${s.id}')">×</button>
+        <div class="svc-arr">▶</div>
+      </div>
+      <div class="svc-body" id="svcb_${s.id}">
+        ${d.positioning ? `<div class="svc-positioning">📍 ${d.positioning}</div>` : ''}
+        ${d.editTip ? `<div class="svc-edittip"><div class="svc-edittip-label">✂️ 剪辑提示</div>${d.editTip}</div>` : ''}
+        ${shots.length ? `
+          <div class="svc-shots">
+            <div class="svc-shots-label">镜头脚本（${shots.length} 个）</div>
+            ${shots.map(sh => renderShotDetail(sh, s.id)).join('')}
+          </div>
+        ` : ''}
+        ${d.xhsCopy ? `
+          <div class="svc-xhs">
+            <div class="svc-xhs-label">小红书文案</div>
+            <div class="svc-xhs-text">${d.xhsCopy}</div>
+          </div>
+        ` : ''}
+        <div style="height:14px;"></div>
+      </div>
+    </div>
+  `;
+}
+
+function setScriptStatus(id, btn, status) {
+  store('script_status_' + id, status);
+  const statusMap = {pending:'active-pending',shooting:'active-shooting',editing:'active-editing',published:'active-published'};
+  const row = btn.closest('.script-status-row');
+  row.querySelectorAll('.script-status-btn').forEach(b => {
+    Object.values(statusMap).forEach(c => b.classList.remove(c));
+  });
+  btn.classList.add(statusMap[status]);
+  toast({pending:'待拍',shooting:'拍摄中',editing:'剪辑中',published:'已发布'}[status] + ' ✓');
+}
+
+function renderShotDetail(sh, scriptId) {
+  const locMeta = sh.locationId && LOC_META[sh.locationId] ? LOC_META[sh.locationId] : null;
+  const timeLabel = sh.time ? TIME_LABELS[sh.time] || sh.time : null;
+  const timeClass = sh.time ? timeClassFromKey(sh.time) : 't-any';
+  return `
+    <div class="svc-shot">
+      <div class="svc-shot-head" onclick="toggleShotDetail('${scriptId}_${sh.no}', this)">
+        <div class="sshot-num">#${sh.no}</div>
+        <div class="sshot-info">
+          <div class="sshot-scene">${sh.scene}</div>
+          <div class="sshot-tags">
+            ${locMeta ? `<span class="sshot-loc">${locMeta.icon} ${locMeta.name}</span>` : ''}
+            ${timeLabel ? `<span class="stag sshot-time ${timeClass}">${timeLabel}</span>` : ''}
+            ${sh.device ? `<span class="dtag d-dev" style="font-size:9px;">📷 ${sh.device}</span>` : ''}
+            ${sh.orient ? `<span class="dtag d-ori" style="font-size:9px;">${sh.orient}</span>` : ''}
+          </div>
+        </div>
+        <div class="sshot-arr">▶</div>
+      </div>
+      <div class="svc-shot-detail" id="ssd_${scriptId}_${sh.no}">
+        ${sh.visual ? `<div class="ssd-sec"><div class="ssd-label">画面 & 拍摄角度</div><div class="ssd-txt">${sh.visual}</div></div>` : ''}
+        ${sh.audio ? `<div class="ssd-sec"><div class="ssd-label">台词 / 字幕 / 声音</div><div class="ssd-audio">${sh.audio}</div></div>` : ''}
+        ${sh.tip ? `<div class="ssd-tip">💡 ${sh.tip}</div>` : ''}
+      </div>
+    </div>
+  `;
+}
+
+function toggleScriptCard(id, header) {
+  const body = document.getElementById('svcb_' + id);
+  const open = body.classList.toggle('open');
+  header.classList.toggle('open', open);
+}
+
+function toggleShotDetail(uid, header) {
+  const det = document.getElementById('ssd_' + uid);
+  const open = det.classList.toggle('open');
+  header.classList.toggle('open', open);
+}
+
+function delScriptConfirm(id) {
+  let scripts = load('saved_scripts', []);
+  scripts = scripts.filter(s => s.id != id);
+  store('saved_scripts', scripts);
+  renderScriptsList();
+  toast('脚本已删除');
+}
+
+// ── IMPORT MODULE ──────────────────────────────────────
+let pendingImport = null;
+
+function handleImportFile(input) {
+  const file = input.files[0];
+  if (!file) return;
+  document.getElementById('importFileName').textContent = file.name;
+  const reader = new FileReader();
+  reader.onload = (e) => {
+    try {
+      const raw = e.target.result.replace(/```json|```/g, '').trim();
+      const data = JSON.parse(raw);
+      pendingImport = data;
+      showImportPreview(data);
+    } catch(err) {
+      document.getElementById('importPreview').innerHTML =
+        `<div style="color:var(--red);font-size:12px;padding:8px 0;">❌ 文件格式有误，请上传有效的 JSON 文件</div>`;
+      pendingImport = null;
+    }
+  };
+  reader.readAsText(file);
+  input.value = '';
+}
+
+function showImportPreview(data) {
+  const shots = data.shots || [];
+  const assignable = shots.filter(s => s.locationId && s.time).length;
+  document.getElementById('importPreview').innerHTML = `
+    <div class="preview-card">
+      <div class="preview-title">${data.title || '未命名脚本'}</div>
+      <div class="preview-meta">${data.positioning || ''} ${data.duration ? '· ' + data.duration : ''}</div>
+      <div class="preview-shots-count">
+        共 ${shots.length} 个镜头，其中 <strong style="color:var(--g)">${assignable} 个</strong>已分配地点和时间，将自动添加到拍摄清单
+      </div>
+      <div class="preview-actions">
+        <button class="btn-import-cancel" onclick="cancelImport()">取消</button>
+        <button class="btn-import-confirm" onclick="confirmImport()">确认导入</button>
+      </div>
+    </div>
+  `;
+}
+
+function cancelImport() {
+  pendingImport = null;
+  document.getElementById('importPreview').innerHTML = '';
+  document.getElementById('importFileName').textContent = '点击上传 JSON 脚本文件';
+}
+
+function confirmImport() {
+  if (!pendingImport) return;
+  const data = pendingImport;
+
+  // 1. Save to scripts library
+  const scripts = load('saved_scripts', []);
+  const newScript = {
+    id: Date.now(),
+    idea: data.title || '',
+    date: new Date().toLocaleDateString('zh-CN'),
+    data: data
+  };
+  scripts.unshift(newScript);
+  store('saved_scripts', scripts);
+
+  // 2. Auto-assign shots to LOCATIONS checklist
+  const shots = data.shots || [];
+  let added = 0;
+  shots.forEach(sh => {
+    if (!sh.locationId || !sh.time) return;
+    const loc = LOCATIONS.find(l => l.id === sh.locationId);
+    if (!loc) return;
+    const shotId = 'imp_' + newScript.id + '_' + sh.no;
+    // Avoid duplicates
+    if (loc.shots.find(s => s.id === shotId)) return;
+    loc.shots.push({
+      id: shotId,
+      scene: sh.scene || '',
+      time: sh.time,
+      tName: TIME_LABELS[sh.time] || sh.time,
+      launch: false,
+      dev: sh.device || '手机',
+      ori: sh.orient || '竖屏',
+      visual: sh.visual || '',
+      audio: sh.audio || '',
+      tip: sh.tip || ''
+    });
+    added++;
+  });
+
+  // 3. Re-render both pages
+  renderScriptsList();
+  renderFilterBar();
+  renderShots();
+
+  cancelImport();
+  toast(`脚本已导入，${added} 个镜头已添加到拍摄清单 ✓`);
+}
+
+// ══════════════════════════════════════════════════════
+// PAGE 3: CALENDAR
+// ══════════════════════════════════════════════════════
+let calDate=new Date();
+let selectedDate=null;
+let selectedPlatforms=[];
+
+function changeMonth(d){
+  calDate.setMonth(calDate.getMonth()+d);
+  renderCal();
+}
+
+function renderCal(){
+  const y=calDate.getFullYear(),m=calDate.getMonth();
+  document.getElementById('calMonth').textContent=`${y}年${m+1}月`;
+  const grid=document.getElementById('calGrid');
+  grid.innerHTML='';
+  ['一','二','三','四','五','六','日'].forEach(d=>{
+    const el=document.createElement('div');
+    el.className='cal-dow';el.textContent=d;grid.appendChild(el);
+  });
+  const first=new Date(y,m,1).getDay();
+  const adj=first===0?6:first-1;
+  for(let i=0;i<adj;i++){const el=document.createElement('div');el.className='cal-day';grid.appendChild(el);}
+  const days=new Date(y,m+1,0).getDate();
+  const today=new Date();
+  const posts=load('cal_posts',{});
+  for(let d=1;d<=days;d++){
+    const el=document.createElement('div');
+    el.className='cal-day';
+    el.textContent=d;
+    const key=`${y}-${String(m+1).padStart(2,'0')}-${String(d).padStart(2,'0')}`;
+    if(y===today.getFullYear()&&m===today.getMonth()&&d===today.getDate())el.classList.add('today');
+    if(posts[key]&&posts[key].length)el.classList.add('has-post');
+    if(selectedDate===key)el.classList.add('selected');
+    const dot=document.createElement('div');dot.className='dot';
+    if(posts[key]&&posts[key].length)el.appendChild(dot);
+    el.addEventListener('click',()=>{selectedDate=key;renderCal();renderCalDetail(key);});
+    grid.appendChild(el);
+  }
+}
+
+function renderCalDetail(key){
+  const posts=load('cal_posts',{})[key]||[];
+  const d=new Date(key);
+  document.getElementById('calDetailTitle').textContent=fmtDate(d);
+  const el=document.getElementById('calPosts');
+  if(!posts.length){el.innerHTML='<div class="empty-cal">这一天还没有发布计划<br><small>点击右上角「+ 添加」</small></div>';return;}
+  el.innerHTML=`<div class="post-list">${posts.map(p=>`
+    <div class="post-item">
+      <div class="post-status st-${p.status}"></div>
+      <div class="post-info">
+        <div class="post-title">${p.title}</div>
+        <div class="post-tags">
+          ${p.platforms.includes('douyin')?'<span class="post-tag douyin">抖音</span>':''}
+          ${p.platforms.includes('xhs')?'<span class="post-tag xiaohongshu">小红书</span>':''}
+          <span class="post-tag">${{draft:'草稿',ready:'待发布',published:'已发布'}[p.status]}</span>
+        </div>
+        ${p.note?`<div style="font-size:11px;color:var(--ink3);margin-top:3px;">${p.note}</div>`:''}
+      </div>
+      <button class="post-del" onclick="delPost('${key}',${p.id})">×</button>
+    </div>
+  `).join('')}</div>`;
+}
+
+function openModal(){
+  if(!selectedDate){toast('请先选择日期');return;}
+  document.getElementById('postTitle').value='';
+  document.getElementById('postStatus').value='draft';
+  document.getElementById('postNote').value='';
+  selectedPlatforms=[];
+  document.querySelectorAll('.plt-btn').forEach(b=>b.classList.remove('active'));
+  // populate script picker
+  const scripts=load('saved_scripts',[]);
+  const sel=document.getElementById('postScriptPick');
+  sel.innerHTML='<option value="">— 手动输入标题 —</option>'+scripts.map(s=>`<option value="${(s.data&&s.data.title)||s.idea||''}">${(s.data&&s.data.title)||s.idea||'未命名脚本'}</option>`).join('');
+  document.getElementById('modalOverlay').classList.add('open');
+}
+function onScriptPick(sel){
+  if(sel.value)document.getElementById('postTitle').value=sel.value;
+}
+function closeModal(){document.getElementById('modalOverlay').classList.remove('open');}
+function togglePlatform(btn){
+  const plt=btn.dataset.plt;
+  btn.classList.toggle('active');
+  if(selectedPlatforms.includes(plt))selectedPlatforms=selectedPlatforms.filter(p=>p!==plt);
+  else selectedPlatforms.push(plt);
+}
+function savePost(){
+  const title=document.getElementById('postTitle').value.trim();
+  if(!title){toast('请输入标题');return;}
+  const posts=load('cal_posts',{});
+  if(!posts[selectedDate])posts[selectedDate]=[];
+  posts[selectedDate].push({
+    id:Date.now(),title,
+    status:document.getElementById('postStatus').value,
+    platforms:selectedPlatforms,
+    note:document.getElementById('postNote').value.trim()
+  });
+  store('cal_posts',posts);
+  closeModal();
+  renderCal();
+  renderCalDetail(selectedDate);
+  toast('已添加 ✓');
+}
+function delPost(dateKey,id){
+  const posts=load('cal_posts',{});
+  if(posts[dateKey])posts[dateKey]=posts[dateKey].filter(p=>p.id!=id);
+  store('cal_posts',posts);
+  renderCal();
+  renderCalDetail(dateKey);
+  toast('已删除');
+}
+document.getElementById('modalOverlay').addEventListener('click',e=>{if(e.target===e.currentTarget)closeModal();});
+
+// ══════════════════════════════════════════════════════
+// PAGE 4: NOTES
+// ══════════════════════════════════════════════════════
+let noteType='idea';
+const noteTypeMap={idea:{label:'选题灵感',cls:'nb-idea'},obs:{label:'现场观察',cls:'nb-obs'},feel:{label:'感受',cls:'nb-feel'},other:{label:'其他',cls:'nb-other'}};
+
+function setNoteType(btn){
+  document.querySelectorAll('.ntbtn').forEach(b=>b.classList.remove('active'));
+  btn.classList.add('active');
+  noteType=btn.dataset.type;
+}
+function saveNote(){
+  const text=document.getElementById('noteInput').value.trim();
+  if(!text){toast('请先输入内容');return;}
+  const notes=load('notes',[]);
+  notes.unshift({id:Date.now(),text,type:noteType,date:new Date().toLocaleString('zh-CN',{month:'numeric',day:'numeric',hour:'2-digit',minute:'2-digit'})});
+  store('notes',notes);
+  document.getElementById('noteInput').value='';
+  renderNotes();
+  toast('已记下 ✓');
+}
+function renderNotes(){
+  const q=(document.getElementById('noteSearch')?.value||'').trim().toLowerCase();
+  let notes=load('notes',[]);
+  if(q)notes=notes.filter(n=>n.text.toLowerCase().includes(q));
+  const el=document.getElementById('notesList');
+  if(!notes.length){el.innerHTML='<div class="empty"><div class="empty-icon">⚡</div>'+(q?'没有匹配的灵感':'随手记下你的想法')+'</div>';return;}
+  el.innerHTML=notes.map(n=>`
+    <div class="note-card">
+      <div class="note-type-badge ${noteTypeMap[n.type]?.cls||'nb-other'}">${noteTypeMap[n.type]?.label||'其他'}</div>
+      <div class="note-text">${n.text}</div>
+      <div class="note-date">${n.date}</div>
+      <button class="note-send-btn" onclick="openCopyModal(${n.id})">✦ 发给 Claude</button>
+      <button class="note-del" onclick="delNote(${n.id})">×</button>
+    </div>
+  `).join('');
+}
+
+let _copyNoteId=null;
+function openCopyModal(id){
+  const notes=load('notes',[]);
+  const n=notes.find(n=>n.id===id);
+  if(!n)return;
+  _copyNoteId=id;
+  const typeLabel=noteTypeMap[n.type]?.label||'其他';
+  const text=`【Carl Studio 灵感速记】\n类型：${typeLabel}\n记录时间：${n.date}\n\n内容：\n${n.text}\n\n---\n请基于以上灵感，帮我生成一条适合抖音/小红书的短视频脚本。背景：我是在卡萨布兰卡做外贸的中国人，账号定位是记录北非外贸创业者的真实生活。`;
+  document.getElementById('copyModalText').textContent=text;
+  document.getElementById('copyModalOverlay').classList.add('open');
+}
+function closeCopyModal(){document.getElementById('copyModalOverlay').classList.remove('open');}
+function doCopy(){
+  const text=document.getElementById('copyModalText').textContent;
+  navigator.clipboard.writeText(text).then(()=>{toast('已复制，粘贴到 Claude 对话框 ✓');closeCopyModal();}).catch(()=>{
+    const ta=document.createElement('textarea');ta.value=text;document.body.appendChild(ta);ta.select();document.execCommand('copy');document.body.removeChild(ta);
+    toast('已复制 ✓');closeCopyModal();
+  });
+}
+document.getElementById('copyModalOverlay').addEventListener('click',e=>{if(e.target===e.currentTarget)closeCopyModal();});
+function delNote(id){
+  let notes=load('notes',[]);
+  notes=notes.filter(n=>n.id!=id);
+  store('notes',notes);
+  renderNotes();
+}
+
+// ── PRESET SCRIPTS（预置脚本，仅首次注入）──────────────
+const PRESET_SCRIPTS = [
+
+  // ─────────────────────────────────────────────────────
+  // 引爆三条
+  // ─────────────────────────────────────────────────────
+  {
+    id: 'preset_ignite_01',
+    idea: '引爆第一条：大多数人以为摩洛哥是这样的——但我住的不是',
+    date: '2025/1/1',
+    data: {
+      title: '大多数人以为摩洛哥是这样的——但我住的不是',
+      positioning: '流量层 · 冷启动引爆首条 — 「原来我错了」结构天然保证完播率，打破预设制造悬念，直接触发评论互动',
+      duration: '55–65秒',
+      shots: [
+        {
+          no: 1,
+          scene: '翻拍马拉喀什网红画面 — 建立错误预期',
+          locationId: 'marrakesh',
+          time: 'any',
+          visual: '手机对着电脑屏幕翻拍马拉喀什网红照片：粉色城市墙、骆驼、蓝天。画面静止3秒，不运镜。\n\n拍摄角度：手机平拍屏幕，保证画面清晰即可，不需要精美。',
+          audio: '【字幕·白字黑底，慢慢出现】大多数人以为摩洛哥是这样的——\n【声音】无。沉默加强预期。',
+          device: '手机（翻拍）',
+          orient: '竖屏',
+          tip: '这3秒是全片最重要的「钩子」，让用户的预期先进来，再被打破。翻拍真实感反而比素材更好。'
+        },
+        {
+          no: 2,
+          scene: '硬切卡萨布兰卡现代街头 — 打破预期',
+          locationId: 'street',
+          time: 'noon',
+          visual: '高楼、车流、咖啡馆露台、西装革履的摩洛哥上班族。手持跟拍从咖啡馆门口向街道推进。光线亮，现代感强。\n\n拍摄角度：Pocket 3 手持，胸口高度，匀速向前推进。',
+          audio: '【声音】城市街道环境音全开，无台词，无字幕。让画面反差自己说话。',
+          device: 'Pocket 3',
+          orient: '竖屏',
+          tip: '从马拉喀什画面硬切到这里，不要有转场效果，直接切。反差越猛越好。'
+        },
+        {
+          no: 3,
+          scene: '出镜建立身份 — 陈述事实',
+          locationId: 'street',
+          time: 'noon',
+          visual: '你站在卡萨布兰卡街头，自然光，背景是真实城市街道。手持，与眼睛等高。说话状态平静，像在陈述一个不需要解释的事实。\n\n拍摄角度：Pocket 3 手持仰角，背景街道清晰可见。',
+          audio: '【口述·出镜，平静】但我住的摩洛哥，是这样的。\n在这里做生意第6年了。',
+          device: 'Pocket 3',
+          orient: '竖屏',
+          tip: '平静陈述比兴奋表达更有力量。说完立刻硬切，不停顿不解释。'
+        },
+        {
+          no: 4,
+          scene: '城市体量感镜头 — 建立信息密度',
+          locationId: 'street',
+          time: 'noon',
+          visual: '卡萨布兰卡现代建筑群或宽阔主干道车流。固定机位或缓慢横移，展示城市纵深感。\n\n拍摄角度：找高点或宽阔路口，体现城市规模感，不要手持晃动。',
+          audio: '【口述·画外音】这里是卡萨布兰卡，摩洛哥最大的城市。500万人口，全国三分之一的钱在这里流动。\n【字幕】500万人口 · 全国经济中心',
+          device: 'Pocket 3',
+          orient: '竖屏',
+          tip: '数字+画面的组合对从没研究过摩洛哥的用户冲击力极强。'
+        },
+        {
+          no: 5,
+          scene: '结尾 — 海边背影，留悬念',
+          locationId: 'beach',
+          time: 'eve',
+          visual: '你站在海边，背对镜头看海。不出镜说话，不交代下一步。Pocket 3 固定低角度，拍你的背影和卡萨布兰卡海岸线。\n\n拍摄角度：低角度固定，背影+海平线构图，傍晚光线。',
+          audio: '【画外音，慢，有停顿感】这6年里，有很多事是我来之前完全没想到的。\n（停顿2秒）\n慢慢说。\n【画面停2秒，自然结束。】',
+          device: 'Pocket 3',
+          orient: '竖屏',
+          tip: '「慢慢说」三个字是钩子，制造对下一条内容的期待。画面不要加字幕，背影+这句话足够。'
+        }
+      ],
+      editTip: '全片节奏：前2个镜头快切（反差冲击）→ 第3镜头减速（出镜陈述）→ 第4镜头信息密度高（画外音+字幕）→ 第5镜头彻底放慢（留白收尾）。环境音全程保留，不加BGM。',
+      xhsCopy: '在卡萨布兰卡生活第6年。\n\n每次跟国内朋友说我在摩洛哥，他们脑子里第一个画面：骆驼、沙漠、粉色城市墙。\n\n但我住的这个摩洛哥，有写字楼、有堵车、有咖啡馆，有500万人在这里认真做生意。\n\n和你想的，不太一样。\n\n#摩洛哥 #卡萨布兰卡 #在摩洛哥生活 #外贸创业 #中国人在海外'
+    }
+  },
+
+  {
+    id: 'preset_ignite_02',
+    idea: '引爆第二条：在摩洛哥谈成一笔生意，和我以为的完全不一样',
+    date: '2025/1/1',
+    data: {
+      title: '在摩洛哥谈成一笔生意，和我以为的完全不一样',
+      positioning: '流量层+信任层 · 引爆第二条 — 承接第一条的城市反差，进入「生意是怎么做的」叙事，精准筛选外贸/出海受众，同时对普通用户有强好奇心驱动',
+      duration: '65–75秒',
+      shots: [
+        {
+          no: 1,
+          scene: '出门跟拍 — 交代今天要见客户',
+          locationId: 'street',
+          time: 'noon',
+          visual: '你走在街头，手持跟拍，出镜说话。背景是卡萨布兰卡街道，自然光。\n\n拍摄角度：Pocket 3 手持，眼睛高度，跟着你走，背景街道虚焦。',
+          audio: '【口述·出镜·边走边说】今天下午要去见个客户，做了两年了，第一次去他们仓库。\n说完硬切，不解释。',
+          device: 'Pocket 3',
+          orient: '竖屏',
+          tip: '「第一次去他们仓库」是小悬念钩子。说完不解释，直接硬切下一场景。'
+        },
+        {
+          no: 2,
+          scene: '德比市场：和摊主打招呼，对方倒茶',
+          locationId: 'market',
+          time: 'aft',
+          visual: '走进一家店，与摊主打招呼，对方给你倒茶。拍倒茶、递茶、坐下的动作。\n\n拍摄角度：Nano 放在侧面桌上或角落固定机位，拍手、茶杯、动作全程。',
+          audio: '【画外音】在摩洛哥，第一次见面谈生意，对方一定先给你倒茶。\n这不是客套，这是规则。\n【声音】茶杯碰撞声、店内阿拉伯语人声，全部保留。',
+          device: 'Nano',
+          orient: '竖屏',
+          tip: '茶杯倒茶的声音是这条视频最重要的声音符号，不要压掉。如果摊主不愿被拍，只拍你手里的茶杯也够用。'
+        },
+        {
+          no: 3,
+          scene: '贡茶：出镜讲谈生意文化',
+          locationId: 'gongcha',
+          time: 'aft',
+          visual: '你坐在贡茶，出镜，看镜头说话。固定机位，略低于眼睛高度。背景有店内摩洛哥风格装饰和其他客人。\n\n拍摄角度：Pocket 3 固定在桌上，略仰角。',
+          audio: '【口述·出镜】我刚来的时候，恨不得见一次面把合同谈完。但这里不行。\n第一次见面，聊你是谁，从哪来，喝茶。\n第二次聊货，聊量，喝茶。\n第三次才谈价格。\n（停顿半拍）\n我花了将近一年才明白——他们不是不想谈，他们在用这个时间判断你这个人值不值得做生意。',
+          device: 'Pocket 3',
+          orient: '竖屏',
+          tip: '说话节奏放慢，每句话之间留半拍。「判断你这个人值不值得做生意」这句是全片信息密度最高的话，不要赶。'
+        },
+        {
+          no: 4,
+          scene: '喝茶放杯停顿 — 情绪留白',
+          locationId: 'gongcha',
+          time: 'aft',
+          visual: '你喝一口茶，放下茶杯，看向窗外。不说话停顿2秒。\n\n拍摄角度：Nano 近景，拍你喝茶放杯的动作特写，然后缓慢拉开到面部。',
+          audio: '【2秒无台词，只有茶杯声和店内环境音】\n【口述·出镜，之后说最后一句】现在我每天下午都来这里坐一坐。\n有时候觉得，这里的做生意方式，比我习惯的那种，其实不差。\n说完镜头停2秒，切走。',
+          device: 'Nano',
+          orient: '竖屏',
+          tip: '2秒停顿绝对不要剪掉，这是全片最有重量的情绪时刻。最后一句话说完不加任何引导，直接黑屏。'
+        }
+      ],
+      editTip: '节奏：跟拍出门（快）→ 倒茶场景（中速，环境音饱满）→ 出镜口述（慢，信息密度最高）→ 喝茶留白（极慢，情绪收尾）。整体像一次真实的下午，不是一条内容。',
+      xhsCopy: '在摩洛哥谈生意，第一次见面不谈生意。\n\n第一次见面：喝茶，聊你是谁。\n第二次：聊货，聊量，喝茶。\n第三次：才谈价格。\n\n我刚来的时候觉得这里效率太低。\n做了6年才明白——\n他们不是拖，他们在判断你这个人值不值得合作。\n\n这是这里的规则，不是客套。\n\n#摩洛哥 #外贸 #卡萨布兰卡 #出海创业 #在摩洛哥生活'
+    }
+  },
+
+  {
+    id: 'preset_ignite_03',
+    idea: '引爆第三条：北非外贸创业者的一天',
+    date: '2025/1/1',
+    data: {
+      title: '北非外贸创业者的一天',
+      positioning: '流量层+IP层 · 引爆第三条 — 人设落地视频，把前两条建立的城市反差和生意叙事，全部浓缩进真实一天的日常流水账，完成账号定位的完整呈现',
+      duration: '75–90秒',
+      shots: [
+        {
+          no: 1,
+          scene: '早晨：手机屏幕 — 两个时区',
+          locationId: 'home',
+          time: 'early',
+          visual: '手机屏幕同时显示北京时间和卡萨布兰卡时间的界面。另一部手机俯拍屏幕，保证文字清晰可读。\n\n拍摄角度：俯拍，屏幕亮度调高，避免反光。',
+          audio: '【字幕】国内比这里早6小时，他们8点的消息，我刚起床。\n【声音】手机通知声。无BGM。',
+          device: '手机',
+          orient: '竖屏',
+          tip: '这个镜头建立「两个时区」的生活感。屏幕要清晰，时间要看得出差异。'
+        },
+        {
+          no: 2,
+          scene: '早晨：楼下健身房',
+          locationId: 'gym',
+          time: 'early',
+          visual: '找能看出「不是中国健身房」的角度——器械老旧、墙面质感或窗外街景。固定机位静止5秒，不拍运动过程。\n\n拍摄角度：Pocket 3 固定，找异域感最强的背景后静止拍。',
+          audio: '【字幕】7:30，楼下。\n【声音】健身房环境音，无BGM。',
+          device: 'Pocket 3',
+          orient: '竖屏',
+          tip: '不需要出镜，不需要说话。异域感背景+时间字幕，两秒建立在地质感。'
+        },
+        {
+          no: 3,
+          scene: '上午：德比市场走货',
+          locationId: 'market',
+          time: 'noon',
+          visual: '进市场，手持跟拍走进主通道15秒。不说话，不字幕。胸口高度匀速前进，体现市场纵深和体量。\n\n拍摄角度：Pocket 3 胸口高度，稳定向前。',
+          audio: '【声音】市场环境音全开——人声、叫卖声、阿拉伯语、摩托车声。无台词，无字幕。',
+          device: 'Pocket 3',
+          orient: '竖屏',
+          tip: '这段不能剪短，市场的嘈杂感是卡萨布兰卡最独特的听觉符号，也是账号最强的在地标识。'
+        },
+        {
+          no: 4,
+          scene: '下午：贡茶处理线上工作',
+          locationId: 'gongcha',
+          time: 'aft',
+          visual: '你坐在贡茶，打开电脑处理工作。固定机位，说完一句话后继续做事，镜头再停留10秒。\n\n拍摄角度：Pocket 3 放在对面，略低于眼睛高度仰拍。背景有店内装饰和其他客人。',
+          audio: '【口述·出镜】每天下午都来这里，处理线上的东西。这家店的老板认识我6年了。\n【10秒无台词】\n【声音】店内人声、茶杯声、阿拉伯语背景音——全部保留。',
+          device: 'Pocket 3',
+          orient: '竖屏',
+          tip: '那10秒无台词的留白是整个账号「陪伴感」的核心，剪辑时绝对不要剪掉。这是账号记忆点的来源。'
+        },
+        {
+          no: 5,
+          scene: '傍晚：海边日落收尾',
+          locationId: 'beach',
+          time: 'eve',
+          visual: '手持，日落，海浪。低角度对着海平线和落日，让海浪声充满画面。不刻意构图，随手拍。\n\n拍摄角度：手持低角度，对着海平线和落日。',
+          audio: '【声音】海浪声，环境音。无台词，无字幕。\n【画面停3–4秒，自然结束。】',
+          device: '手机 / Pocket 3',
+          orient: '横屏→裁竖',
+          tip: '这是全片唯一「什么都不解释」的镜头，不要剪短，不要加字幕，就是海浪声+日落画面。'
+        }
+      ],
+      editTip: '全片是一条时间线：早 → 上午 → 下午 → 傍晚。节奏逐渐放慢。每个场景之间用黑底白字时间字幕衔接（7:30 / 上午 / 下午 / 傍晚）。环境音全程保留，不加任何BGM。',
+      xhsCopy: '北非外贸创业者的一天：\n\n7:30 楼下健身房——器械很老，但窗外是卡萨布兰卡\n上午 德比市场——找货，看货，喝茶\n下午 老地方咖啡馆——处理邮件，回国内消息\n傍晚 海边——什么都不做，就坐着\n\n这是在摩洛哥的第6年，普通的一天。\n\n#摩洛哥 #卡萨布兰卡 #在摩洛哥生活 #外贸创业 #海外生活'
+    }
+  },
+
+  // ─────────────────────────────────────────────────────
+  // 人·货·场 三条
+  // ─────────────────────────────────────────────────────
+  {
+    id: 'preset_people_01',
+    idea: '人：外贸创业者的真实日常，两个时区，一个人的生意',
+    date: '2025/1/1',
+    data: {
+      title: '在摩洛哥做生意第6年，我每天是怎么过的',
+      positioning: 'IP层 · 「人」的内容 — 建立陈阳Carl这个人的真实质感，让用户感受到「他就是这样一个人在那里真实生活」，是知识付费变现最深层的信任基础',
+      duration: '80–100秒',
+      shots: [
+        {
+          no: 1,
+          scene: '早晨桌面 — 两个时区的工作台',
+          locationId: 'home',
+          time: 'early',
+          visual: '工作桌面全貌：电脑、笔记本、咖啡、窗外卡萨布兰卡晨光。一个静止全景镜头5秒。\n\n拍摄角度：Pocket 3 固定在对面，与桌面齐高，略俯角。',
+          audio: '【字幕】这是我每天开始工作的地方。\n国内比这里早6小时，他们刚到公司，我刚起床。',
+          device: 'Pocket 3',
+          orient: '横屏→裁竖',
+          tip: '「外贸人的工作台」选题素材，窗外有光线最好。不需要出镜，桌面本身就是内容。'
+        },
+        {
+          no: 2,
+          scene: '屏幕录制 — 处理多语言消息',
+          locationId: 'home',
+          time: 'early',
+          visual: '打开WhatsApp/邮件处理多语言消息。录屏拍操作状态，不需要暴露具体内容。\n\n拍摄角度：手机录屏，或另一部手机拍屏幕操作状态。',
+          audio: '【口述·画外音】我每天要用几种语言处理工作——中文、英文、有时候法文。\n这不是因为我语言好，是因为这里的生意就是这样运转的。',
+          device: '手机（录屏）',
+          orient: '竖屏',
+          tip: '「语言夹缝里的生意人」是账号最强的差异化方向之一，这个镜头可以独立成一条选题。'
+        },
+        {
+          no: 3,
+          scene: '贡茶 — 下午处理工作的固定地',
+          locationId: 'gongcha',
+          time: 'aft',
+          visual: '你坐在贡茶处理工作，固定机位。说完一句话，继续做事，镜头留白10秒。背景有摩洛哥风格装饰和其他客人。\n\n拍摄角度：Pocket 3 固定桌上，略仰角。',
+          audio: '【口述·出镜】在摩洛哥做生意，很多决定是在这里做的。\n不在公司，不在会议室，在咖啡馆。\n【10秒留白，只有环境音】',
+          device: 'Pocket 3',
+          orient: '竖屏',
+          tip: '这个镜头是账号陪伴感的核心来源，每次贡茶都要积累素材，时间长了就是账号最独特的记忆点。'
+        },
+        {
+          no: 4,
+          scene: '在家做饭 — 用摩洛哥食材做中国菜',
+          locationId: 'home',
+          time: 'noon',
+          visual: '用摩洛哥食材做中国菜，或中国调料做摩洛哥菜。拍食材、锅里状态、出锅。\n\n拍摄角度：手机竖屏，俯拍锅内，或Nano近景拍食材。',
+          audio: '【口述·画外音】在摩洛哥买不到的东西，我用这个代替。\n住久了会发现，两种食材其实可以相处得很好。',
+          device: '手机 / Nano',
+          orient: '竖屏',
+          tip: '中西食材反差感强，是账号生活感内容中传播力最好的类型之一。'
+        },
+        {
+          no: 5,
+          scene: '傍晚 — 一个人在海边',
+          locationId: 'beach',
+          time: 'eve',
+          visual: '你站在海边，背对镜头，看海。不出镜说话。Pocket 3 固定低角度拍背影和海岸线。\n\n拍摄角度：低角度固定，傍晚光线。',
+          audio: '【画外音，极慢】6年了。\n（停顿）\n有时候会想，如果当初没来，现在会在哪里。\n（停顿）\n想不出来。\n【画面停3秒，自然结束。】',
+          device: 'Pocket 3',
+          orient: '竖屏',
+          tip: '这段台词是全片情绪最重的地方，要极慢，停顿要足够长。不升华，不总结，就是这个感受本身。'
+        }
+      ],
+      editTip: '全片是情绪弧线：早晨工作状态（信息密度高）→ 午间生活细节（松弛）→ 下午工作状态（陪伴感）→ 傍晚海边（情绪留白）。整体节奏从紧到慢，结尾极慢。',
+      xhsCopy: '在摩洛哥的第6年，普通的一天：\n\n早上7点，国内来了消息，用英文回，用法文补充，用中文结尾。\n\n中午自己做饭，食材是摩洛哥的，调料是从国内带来的。\n\n下午去咖啡馆，在这里处理工作已经习惯了。\n\n傍晚去海边待一会儿。\n\n有时候会想，如果当初没来，现在会在哪里。想不出来。\n\n#摩洛哥 #卡萨布兰卡 #外贸创业 #在摩洛哥生活 #海外创业'
+    }
+  },
+
+  {
+    id: 'preset_goods_01',
+    idea: '货：漂洋过海三个月的货柜今天到了',
+    date: '2025/1/1',
+    data: {
+      title: '三个月前在义乌下的订单，今天货到卡萨布兰卡了',
+      positioning: '信任层 · 「货」的内容 — 用一批货柜完整的旅程呈现外贸生意的真实质感，是B端用户最有价值的内容，也是普通用户好奇心最强的场景',
+      duration: '90–110秒',
+      shots: [
+        {
+          no: 1,
+          scene: '开场 — 在贡茶或家里建立时间跨度',
+          locationId: 'gongcha',
+          time: 'aft',
+          visual: '不在仓库，在贡茶或家里。出镜，看镜头说两句话，说完硬切仓库。\n\n拍摄角度：Pocket 3 固定，出镜状态随意，不需要精心布景。',
+          audio: '【口述·出镜】三个月前在义乌下的订单，今天货到仓库了。\n说完立即切仓库，不停顿。',
+          device: 'Pocket 3',
+          orient: '竖屏',
+          tip: '两句话建立时间跨度，观众在看到货柜之前已感受到等待的重量。不要解释什么货，悬念留着。'
+        },
+        {
+          no: 2,
+          scene: '货柜车到达 — 停下来的10秒',
+          locationId: 'warehouse',
+          time: 'any',
+          visual: '货柜车开进来或停下来。不说话，不字幕，环境音全开，画面停足10秒，不剪短。\n\n拍摄角度：Pocket 3 横屏，固定在仓库门口或侧面，拍货柜车全貌。',
+          audio: '【声音】引擎声、工人说话声（阿拉伯语/达里贾语保留）、仓库环境音。无台词，无字幕。',
+          device: 'Pocket 3',
+          orient: '横屏→裁竖',
+          tip: '货柜车停下的画面是全片信息密度最高的一帧，不要用台词破坏这个空间。10秒不剪短。'
+        },
+        {
+          no: 3,
+          scene: '柜门打开的瞬间',
+          locationId: 'warehouse',
+          time: 'any',
+          visual: '货柜门被打开的那一刻。站在货柜侧面，拍门打开的瞬间。\n\n拍摄角度：Pocket 3 竖屏，站在侧面，拍门从关到开的过程。',
+          audio: '【口述·画外音】从义乌装柜，到卡萨布兰卡港，这个门已经关了将近一个月。',
+          device: 'Pocket 3',
+          orient: '竖屏',
+          tip: '「这个门已经关了将近一个月」——时间感是这句话最重要的东西，说的时候要慢。'
+        },
+        {
+          no: 4,
+          scene: '卸货过程 — 工人和环境音',
+          locationId: 'warehouse',
+          time: 'any',
+          visual: '工人在卸货，货件落地，你站在旁边看。货物保持纸箱/整体视角，不特写单件。\n\n拍摄角度：Nano 侧面跟拍，拍工人动作和货件落地瞬间。',
+          audio: '【声音】纯环境音，工人对话（阿拉伯语）、货件落地声。无台词，无字幕。',
+          device: 'Nano',
+          orient: '竖屏',
+          tip: '工人说阿拉伯语的声音不要消掉，这是你和国内所有外贸博主最本质的差异。'
+        },
+        {
+          no: 5,
+          scene: '货卸完全景 — 走进画面停顿',
+          locationId: 'warehouse',
+          time: 'any',
+          visual: '所有货堆好，仓库全景。你走进画面站在货堆旁，说一句话，然后停顿2秒看货堆，不说话。\n\n拍摄角度：Pocket 3 固定在仓库角落，拍全景，你走进画面。',
+          audio: '【口述·出镜】都到了，没有破损。\n（停顿2秒，看货，不说话。）',
+          device: 'Pocket 3',
+          orient: '横屏→裁竖',
+          tip: '那2秒停顿比任何台词都有力量，是整条视频情绪最高点，剪辑时不要把它剪掉。'
+        },
+        {
+          no: 6,
+          scene: '走出仓库 — 最后一句话，黑屏',
+          locationId: 'warehouse',
+          time: 'any',
+          visual: '走出仓库，外面是卡萨布兰卡街道和阳光。出镜说最后一句，然后黑屏。\n\n拍摄角度：Pocket 3 手持，拍你从仓库门走出来的过程。',
+          audio: '【口述·出镜】接下来就是卖出去。\n黑屏。',
+          device: 'Pocket 3',
+          orient: '竖屏',
+          tip: '不说卖给谁、多少钱——就这五个字，黑屏。留白比解释更有力量。'
+        }
+      ],
+      editTip: '全片按时间顺序剪辑，不需要任何花哨转场。镜头2（货柜车）和镜头5（停顿2秒）是全片两个「留白锚点」，绝对不要剪短。环境音全程保留，工人阿拉伯语对话是最强的在地符号。',
+      xhsCopy: '三个月前在义乌下的订单，今天到了卡萨布兰卡。\n\n货柜门关上的那天在义乌。\n货柜门打开的这天在摩洛哥。\n中间隔了将近一个月的海。\n\n工人在卸货，我站在旁边，没说什么。\n\n货都到了，没有破损。\n\n接下来就是卖出去。\n\n#摩洛哥外贸 #卡萨布兰卡 #外贸创业 #义乌 #中非贸易'
+    }
+  },
+
+  {
+    id: 'preset_place_01',
+    idea: '场：带你看真实的卡萨布兰卡市场，不是旅游攻略',
+    date: '2025/1/1',
+    data: {
+      title: '带你看真实的卡萨布兰卡市场，不是旅游攻略',
+      positioning: '信任层 · 「场」的内容 — 用纪录片视角呈现卡萨布兰卡真实商业生态，体量·结构·竞争格局全部可见，是B端用户最高密度的市场洞察内容，对普通用户也有极强好奇心驱动',
+      duration: '90–110秒',
+      shots: [
+        {
+          no: 1,
+          scene: '主通道进场 — 环境音全开，体量感',
+          locationId: 'market',
+          time: 'aft',
+          visual: '进市场，手持跟拍走进主通道，连续行走15秒。不说话，不字幕。胸口高度，匀速前进，体现市场纵深和体量。\n\n拍摄角度：Pocket 3 胸口高度，匀速向前推进。',
+          audio: '【声音】市场环境音全开——人声、叫卖声、阿拉伯语、摩托车声。无台词，无字幕。',
+          device: 'Pocket 3',
+          orient: '竖屏',
+          tip: '这段15秒不能剪短，市场的嘈杂感是卡萨布兰卡最独特的听觉符号，让用户先浸入，再听你说。'
+        },
+        {
+          no: 2,
+          scene: '摊位扫描 — 中间商结构',
+          locationId: 'market',
+          time: 'aft',
+          visual: '镜头缓慢扫过几个不同品类摊位。不说具体是什么货。Nano 从侧面低角度扫过摊位，让货物填满画面。\n\n拍摄角度：Nano 低角度，缓慢横移扫过摊位。',
+          audio: '【口述·出镜】一件从义乌出来的货，到摩洛哥消费者手里，中间至少要过三道手。\n进口商、批发商、零售商——\n（停顿）我在的位置，是最前面那一层。',
+          device: 'Nano',
+          orient: '竖屏',
+          tip: '「我在的位置，是最前面那一层」让观众瞬间理解你在链条里的角色。说完停顿，不需要解释。'
+        },
+        {
+          no: 3,
+          scene: '欧洲货与中国货同框 — 竞争格局',
+          locationId: 'market',
+          time: 'aft',
+          visual: '找欧洲品牌商品或摊位，和旁边的中国货放在同一镜头。Pocket 3 拍摊位全景，两种货品都清晰可见。\n\n拍摄角度：Pocket 3 正面或侧面，保证两种货品都在画面里。',
+          audio: '【口述·出镜】这个市场里，中国货不是唯一的外来者。欧洲货也在，土耳其货也在。\n摩洛哥的消费者，比你想象的更挑剔。\n（停顿）\n这里不是蓝海，是一个真实的市场，有竞争，有规则，也有机会。',
+          device: 'Pocket 3',
+          orient: '竖屏',
+          tip: '「这里不是蓝海」对B端受众冲击力极强，是全片信息密度最高的一句话，说完留停顿。'
+        },
+        {
+          no: 4,
+          scene: '认识的中国货 — 「这件我知道从哪来」',
+          locationId: 'market',
+          time: 'aft',
+          visual: '找到一件你认识的中国货，拍它放在摩洛哥摊位上的样子。Nano 近景特写，货品和摊位背景都在画面内。\n\n拍摄角度：Nano 近景，货品清晰，背景摊位可见。',
+          audio: '【口述·出镜】这个，我知道从哪来的。\n（不展开，让观众脑补。）',
+          device: 'Nano',
+          orient: '竖屏',
+          tip: '「我知道从哪来的」说完不解释，是全片最强的悬念留白之一，评论区一定有人问。'
+        },
+        {
+          no: 5,
+          scene: '结尾 — 走出市场，一句话收场',
+          locationId: 'street',
+          time: 'aft',
+          visual: '走出市场大门，外面是卡萨布兰卡街头。Pocket 3 手持，拍你从市场走出来的过程。出镜说最后一句。\n\n拍摄角度：低角度仰拍你走出来，背景是街道和阳光。',
+          audio: '【口述·出镜】我每周都来这里。\n6年了，每次来都能看到新的东西。\n【画面停2秒，自然结束。】',
+          device: 'Pocket 3',
+          orient: '竖屏',
+          tip: '「每次来都能看到新的东西」是对这个市场最好的定义，也是对账号内容的隐性承诺。说完不加任何引导。'
+        }
+      ],
+      editTip: '全片节奏：进场（纯环境音，沉浸感）→ 结构解说（信息密度高）→ 竞争格局（B端最高价值段）→ 悬念留白 → 情绪收尾。镜头1的15秒环境音不能剪短，是全片沉浸感的来源。',
+      xhsCopy: '卡萨布兰卡的批发市场，不是旅游攻略里写的那种。\n\n一件从义乌出来的货，到摩洛哥消费者手里，至少过三道手。\n\n这里不只有中国货——欧洲货、土耳其货都在。\n摩洛哥的消费者比你想象的挑剔。\n\n这里不是蓝海，是一个真实的市场。\n有竞争，有规则，也有机会。\n\n我每周都来，6年了。\n\n#摩洛哥外贸 #卡萨布兰卡市场 #外贸创业 #中非贸易 #出海'
+    }
+  },
+
+  // ─────────────────────────────────────────────────────
+  // 送礼物
+  // ─────────────────────────────────────────────────────
+  {
+    id: 'preset_panda_001',
+    idea: '送小熊猫挂件给卡萨布兰卡普通人，看反应',
+    date: '2025/1/1',
+    data: {
+      title: '我在卡萨布兰卡随机送熊猫挂件，看看他们的反应',
+      positioning: '流量层 — 反差感 + 真实人际，同时服务小白用户（温度感）和B端用户（在地人脉深度）',
+      duration: '65–75秒',
+      shots: [
+        {
+          no: 1,
+          scene: '开场 — 手持挂件出镜，交代动机',
+          locationId: 'street',
+          time: 'any',
+          visual: '手持熊猫挂件特写，背景虚化为卡萨布兰卡街头。出镜半身，随意站着，不刻意构图。\n\n拍摄角度：Pocket 3 手持，眼睛高度，背景街道可见即可。',
+          audio: '【画外音，平静】回国采货，顺手带了一批熊猫挂件回来。不值什么钱，但我想做个实验——\n【出镜】把它们随机送给卡萨布兰卡的普通人，看看会发生什么。',
+          device: 'Pocket 3',
+          orient: '竖屏',
+          tip: '语气平静陈述，不要兴奋。说完立刻硬切第一个场景。'
+        },
+        {
+          no: 2,
+          scene: '场景一：咖啡店店员',
+          locationId: 'gongcha',
+          time: 'aft',
+          visual: '贡茶柜台，Pocket 3 稳定跟拍。环境音：咖啡机声、背景人声全部保留。把挂件递给店员，不说话，等她的反应自然发生，不引导。\n\n拍摄角度：站在柜台侧面，拍递出挂件和对方反应的过程。',
+          audio: '【画外音，简短】第一个，咖啡店的店员，认识两年了。\n【字幕（如对方问）】她问我：这个熊，是真实存在的吗？\n【你回应·出镜】中国有，只有中国有。',
+          device: 'Pocket 3',
+          orient: '竖屏',
+          tip: '如果她直接笑着收下而没有问，也很好。不要事先解释是什么，让反应100%真实。'
+        },
+        {
+          no: 3,
+          scene: '场景二：停车保安',
+          locationId: 'street',
+          time: 'any',
+          visual: '街边停车位。Nano 近景拍保安的手和表情。环境音：街道、车声全部保留。把挂件递过去，观察第一反应，不引导。如果他挂到钥匙上或别在衣服上，停在这个画面3秒不说话。',
+          audio: '【画外音】停车保安，每天见面，从来没送过他东西。\n【字幕（静默画面压字）】他没说谢谢，直接挂上去了。\n我觉得这比说谢谢更好。',
+          device: 'Nano',
+          orient: '竖屏',
+          tip: '保安反应平淡也没关系，平淡本身就是真实。3秒静默画面不要剪掉。'
+        },
+        {
+          no: 4,
+          scene: '场景三：路边小孩',
+          locationId: 'street',
+          time: 'any',
+          visual: '街头或市场附近，遇到小孩的自然场景，手机竖屏随手抓拍。环境音全保留，不加配乐。拍小孩拿到挂件的反应、表情、动作。画面停够3–4秒，让画面自己说话。',
+          audio: '【画外音，极简】小孩不用解释熊猫是什么。\n【之后无台词，画面停3–4秒。】',
+          device: '手机',
+          orient: '竖屏',
+          tip: '小孩反应最真，这个场景如果质量好可以放到最后压轴。遇到机会随时拍，不要错过。'
+        },
+        {
+          no: 5,
+          scene: '结尾 — 贡茶固定机位收场',
+          locationId: 'gongcha',
+          time: 'aft',
+          visual: '你坐在贡茶，桌上还剩几个挂件，窗外街景可见。Pocket 3 固定机位，你看向镜头外，不直视镜头。下午光线拍，窗外街景有质感。\n\n拍摄角度：Pocket 3 放在对面桌上，略低于眼睛高度。',
+          audio: '【画外音，慢，有停顿感】在这里做生意6年，\n有时候一个小东西，\n比一张名片管用。\n【画面停留2秒，自然结束，不加任何引导。】',
+          device: 'Pocket 3',
+          orient: '竖屏',
+          tip: '台词要慢，每句之间停顿半拍。说完不加任何引导直接结束。'
+        }
+      ],
+      editTip: '三个人物场景快剪，节奏依次加快。保安和小孩的静默画面不要剪短，留白是这条视频最重要的情绪时刻。结尾贡茶镜头降速，配合停顿感台词。',
+      xhsCopy: '在卡萨布兰卡生活第6年，回国顺手带了一批熊猫挂件。\n\n随机送给三个普通人——咖啡店店员、停车保安、路边小孩。\n\n保安拿到直接挂钥匙上了，没说谢谢。\n我反而觉得这比说谢谢更真实。\n\n做了6年生意，有时候一个小东西比一张名片管用。\n\n#摩洛哥 #在摩洛哥生活 #外贸创业 #中国人在海外 #真实海外生活'
+    }
+  }
+
+];
+
+function injectPresetScripts() {
+  const saved = load('saved_scripts', []);
+  const existingIds = new Set(saved.map(s => s.id));
+  let changed = false;
+  PRESET_SCRIPTS.forEach(ps => {
+    if (!existingIds.has(ps.id)) {
+      saved.push(ps);
+      changed = true;
+    }
+  });
+  if (changed) store('saved_scripts', saved);
+}
+
+// ── INIT ──────────────────────────────────────────────
+renderTodayBanner();
+renderFilterBar();
+renderShots();
+renderCal();
+renderNotes();
+injectPresetScripts();
+renderScriptsList();
+</script>
+</body>
+</html>
